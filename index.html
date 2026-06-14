@@ -1,0 +1,2197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Une presentation interactive pour apprendre a ecrire une redaction au college : la methode en 4 etapes.">
+<title>Réussir sa rédaction : la méthode en 4 étapes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5efe4;
+  --surface:#ffffff;
+  --surface-alt:#f0e8d9;
+  --ink:#1f2a36;
+  --ink-soft:#586472;
+  --border:#e3dcce;
+  --primary:#143a5c;
+  --primary-2:#1e527f;
+  --accent:#d2502b;
+  --accent-strong:#b23e1d;
+  --gold:#d99a2b;
+  --ok:#1f8a4c;
+  --warn:#c47d1a;
+  --err:#c23b3b;
+  --focus:#2f74c0;
+  --hl-action:#1f8a4c;     --hl-action-bg:#dff3e6;
+  --hl-constraint:#2f74c0; --hl-constraint-bg:#dde9f8;
+  --hl-genre:#c9740f;      --hl-genre-bg:#fae7cb;
+  --radius:16px;
+  --radius-sm:9px;
+  --shadow:0 14px 34px rgba(20,40,70,.12);
+  --maxw:880px;
+  --font-serif:"Fraunces","Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --font-sans:"Mulish",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:var(--font-sans);
+  font-size:17px;
+  line-height:1.55;
+  color:var(--ink);
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  height:100svh;
+  min-height:100svh;
+  overflow:hidden;
+}
+
+p{ margin:0 0 1rem; }
+ul,ol{ margin:0 0 1rem; padding-left:1.4rem; }
+li{ margin:0 0 .35rem; }
+strong{ color:var(--primary); }
+:focus-visible{ outline:3px solid var(--focus); outline-offset:2px; border-radius:5px; }
+
+.skip-link{
+  position:absolute; left:.5rem; top:-3rem; z-index:50;
+  background:var(--primary); color:#fff; padding:.5rem .9rem; border-radius:8px;
+  transition:top .15s ease;
+}
+.skip-link:focus{ top:.5rem; }
+
+/* ---------- Top bar ---------- */
+.topbar{
+  flex:0 0 auto;
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  padding:.55rem clamp(1rem,3vw,2rem);
+  background:var(--surface); border-bottom:1px solid var(--border);
+}
+.topbar__brand{ display:flex; align-items:center; gap:.55rem; min-width:0; }
+.topbar__logo{ font-size:1.25rem; color:var(--accent); }
+.topbar__title{
+  font-family:var(--font-serif); font-weight:600; color:var(--primary); font-size:1.02rem;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.topbar__progress{ display:flex; align-items:center; gap:.75rem; flex:1 1 auto; max-width:440px; }
+.progress{ flex:1 1 auto; height:9px; background:var(--surface-alt); border-radius:999px; overflow:hidden; }
+.progress__fill{ height:100%; width:7.7%; background:linear-gradient(90deg,var(--primary),var(--accent)); border-radius:999px; transition:width .45s ease; }
+.counter{ font-weight:700; color:var(--ink-soft); font-size:.95rem; white-space:nowrap; font-variant-numeric:tabular-nums; }
+
+/* ---------- Deck / slides ---------- */
+.deck{ position:relative; flex:1 1 auto; overflow:hidden; }
+.slide{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  overflow-y:auto;
+  padding:clamp(1.1rem,3.2vw,2.6rem);
+  opacity:0; visibility:hidden; transform:translateY(14px); pointer-events:none;
+  transition:opacity .45s ease, transform .45s ease;
+}
+.slide.is-active{ opacity:1; visibility:visible; transform:none; pointer-events:auto; }
+.slide__inner{ width:100%; max-width:var(--maxw); margin-left:auto; margin-right:auto; padding-bottom:1.5rem; }
+.slide--center .slide__inner{
+  margin-top:auto; margin-bottom:auto;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+}
+
+.slide__eyebrow{
+  display:inline-block; font-family:var(--font-sans); font-weight:800;
+  text-transform:uppercase; letter-spacing:.09em; font-size:.78rem; color:var(--accent);
+  margin:0 0 .55rem;
+}
+.slide__title{
+  font-family:var(--font-serif); font-weight:700; color:var(--primary);
+  font-size:clamp(1.65rem,4.2vw,2.5rem); line-height:1.12; margin:0 0 1rem;
+}
+.slide__title--xl{ font-size:clamp(2.3rem,6.5vw,3.6rem); }
+.slide__subtitle{
+  font-family:var(--font-serif); font-weight:500; color:var(--ink-soft);
+  font-size:clamp(1.1rem,3vw,1.55rem); margin:0 0 1.4rem;
+}
+.slide__sub{
+  font-family:var(--font-serif); font-weight:600; color:var(--primary);
+  font-size:1.3rem; margin:1.8rem 0 .6rem;
+}
+.lead{ font-size:1.18rem; line-height:1.5; color:var(--ink); }
+
+/* ---------- Shared utilities ---------- */
+.row{ display:flex; flex-wrap:wrap; gap:1rem; }
+.stack{ display:block; }
+.stack>*+*{ margin-top:.7rem; }
+.grid-2{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; }
+.center{ text-align:center; }
+
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:1.1rem 1.25rem; box-shadow:var(--shadow); flex:1 1 240px;
+}
+.card>:last-child{ margin-bottom:0; }
+
+.pill{
+  display:inline-block; font-size:.76rem; font-weight:800; letter-spacing:.03em;
+  text-transform:uppercase; color:var(--primary); background:var(--hl-constraint-bg);
+  padding:.28em .75em; border-radius:999px; margin-bottom:.55rem;
+}
+.num-badge{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:1.9em; height:1.9em; border-radius:999px; background:var(--primary); color:#fff; font-weight:800;
+}
+.chip{
+  display:inline-flex; align-items:center; gap:.4em; background:var(--surface-alt);
+  border:1px solid var(--border); border-radius:999px; padding:.3em .75em; font-size:.95rem;
+}
+.visually-hidden{
+  position:absolute !important; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+}
+
+/* ---------- Buttons ---------- */
+.btn{
+  font-family:var(--font-sans); font-weight:700; font-size:1rem; line-height:1.1;
+  padding:.7em 1.2em; border-radius:999px; border:2px solid transparent; cursor:pointer;
+  background:var(--surface); color:var(--ink);
+  transition:transform .08s ease, background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:hover{ box-shadow:0 4px 14px rgba(20,40,70,.12); }
+.btn:active{ transform:translateY(1px); }
+.btn--primary{ background:var(--primary); color:#fff; border-color:var(--primary); }
+.btn--primary:hover{ background:var(--primary-2); border-color:var(--primary-2); }
+.btn--accent{ background:var(--accent); color:#fff; border-color:var(--accent); }
+.btn--accent:hover{ background:var(--accent-strong); border-color:var(--accent-strong); }
+.btn--ghost{ background:transparent; color:var(--primary); border-color:var(--border); }
+.btn--ghost:hover{ background:var(--surface-alt); border-color:var(--primary); }
+.btn--sm{ padding:.45em .85em; font-size:.9rem; }
+.btn--lg{ padding:.85em 1.7em; font-size:1.15rem; }
+.btn:disabled{ opacity:.42; cursor:not-allowed; transform:none; box-shadow:none; }
+
+/* ---------- Feedback boxes ---------- */
+.feedback{
+  margin-top:1rem; padding:.9rem 1.1rem; border-radius:var(--radius-sm);
+  border-left:5px solid var(--ink-soft); background:var(--surface-alt); color:var(--ink);
+  font-size:1rem; line-height:1.5;
+}
+.feedback>:last-child{ margin-bottom:0; }
+.feedback[hidden]{ display:none; }
+.feedback--ok{ border-left-color:var(--ok); background:var(--hl-action-bg); }
+.feedback--partial{ border-left-color:var(--warn); background:#fbf0d8; }
+.feedback--err{ border-left-color:var(--err); background:#f9e3e3; }
+.feedback--info{ border-left-color:var(--primary-2); background:var(--hl-constraint-bg); }
+
+/* ---------- Component wrapper ---------- */
+.cmp{ margin:.5rem 0 1rem; }
+
+/* ---------- Evaluation ring (slide 9) ---------- */
+.eval{ display:grid; grid-template-columns:minmax(190px,260px) 1fr; gap:1.6rem; align-items:center; margin-top:.5rem; }
+.eval__ring{ display:flex; flex-direction:column; align-items:center; gap:.9rem; }
+.ring{ width:clamp(170px,38vw,240px); height:auto; display:block; }
+.ring circle{ fill:none; stroke-width:26; }
+.ring__track{ stroke:var(--surface-alt); }
+.ring__fond{ stroke:var(--primary); }
+.ring__forme{ stroke:var(--accent); }
+.ring__num{ font-family:var(--font-serif); font-weight:700; font-size:34px; fill:var(--ink); }
+.ring__lbl{ font-family:var(--font-sans); font-size:11px; fill:var(--ink-soft); letter-spacing:.08em; }
+.legend{ display:flex; flex-direction:column; gap:.45rem; font-weight:600; }
+.legend__row{ display:flex; align-items:center; gap:.55rem; }
+.swatch{ width:1rem; height:1rem; border-radius:4px; flex:0 0 auto; }
+.swatch--fond{ background:var(--primary); }
+.swatch--forme{ background:var(--accent); }
+.eval__detail{ display:grid; gap:1rem; }
+
+/* ---------- Footer nav ---------- */
+.navbar{
+  flex:0 0 auto;
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  padding:.65rem clamp(1rem,3vw,2rem);
+  background:var(--surface); border-top:1px solid var(--border);
+}
+.dots{ display:flex; gap:.42rem; flex-wrap:wrap; justify-content:center; flex:1 1 auto; }
+.dot{ width:10px; height:10px; border-radius:999px; background:var(--border); border:0; padding:0; cursor:pointer; transition:background-color .2s ease, transform .2s ease; }
+.dot.is-active{ background:var(--accent); transform:scale(1.3); }
+.dot:hover{ background:var(--ink-soft); }
+.dot:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+.nav-btn{ flex:0 0 auto; }
+
+/* ---------- Responsive ---------- */
+@media (max-width:720px){
+  .eval{ grid-template-columns:1fr; }
+}
+@media (max-width:560px){
+  body{ font-size:16px; }
+  .topbar__title{ display:none; }
+  .dots{ display:none; }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important; animation-iteration-count:1 !important;
+    transition-duration:.001ms !important; scroll-behavior:auto !important;
+  }
+  .slide{ transform:none !important; }
+}
+
+/* ===== Styles des composants interactifs (injectés au build) ===== */
+/* ===== Composant A ===== */
+#cmp-a .a-instruction {
+  margin: 0 0 0.75rem;
+  color: var(--ink-soft);
+}
+#cmp-a .a-pens {
+  margin-bottom: 0.5rem;
+}
+#cmp-a .a-pen {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.75rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--ink);
+  background: var(--surface-alt);
+  transition: box-shadow 0.12s, border-color 0.12s, transform 0.06s;
+}
+#cmp-a .a-pen:active {
+  transform: translateY(1px);
+}
+#cmp-a .a-pen-dot {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  flex: 0 0 auto;
+}
+#cmp-a .a-pen--action .a-pen-dot { background: var(--hl-action-bg); border-color: var(--hl-action); }
+#cmp-a .a-pen--constraint .a-pen-dot { background: var(--hl-constraint-bg); border-color: var(--hl-constraint); }
+#cmp-a .a-pen--genre .a-pen-dot { background: var(--hl-genre-bg); border-color: var(--hl-genre); }
+
+#cmp-a .a-pen[aria-pressed="true"] {
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px currentColor;
+}
+#cmp-a .a-pen--action[aria-pressed="true"] { border-color: var(--hl-action); color: var(--hl-action); }
+#cmp-a .a-pen--constraint[aria-pressed="true"] { border-color: var(--hl-constraint); color: var(--hl-constraint); }
+#cmp-a .a-pen--genre[aria-pressed="true"] { border-color: var(--hl-genre); color: var(--hl-genre); }
+
+#cmp-a .a-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  margin: 0 0 0.85rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+#cmp-a .a-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+#cmp-a .a-swatch {
+  width: 1.1rem;
+  height: 0.7rem;
+  border-radius: 3px;
+  display: inline-block;
+}
+#cmp-a .a-swatch--action { background: var(--hl-action-bg); border-bottom: 3px solid var(--hl-action); }
+#cmp-a .a-swatch--constraint { background: var(--hl-constraint-bg); border-bottom: 3px solid var(--hl-constraint); }
+#cmp-a .a-swatch--genre { background: var(--hl-genre-bg); border-bottom: 3px solid var(--hl-genre); }
+
+#cmp-a .a-consigne {
+  margin-bottom: 1rem;
+}
+#cmp-a .a-consigne-text {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.15rem;
+  line-height: 2;
+  color: var(--ink);
+}
+#cmp-a .a-tok {
+  font: inherit;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  border-radius: 4px;
+  padding: 0.05em 0.2em;
+  margin: 0;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
+}
+#cmp-a .a-tok:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+#cmp-a .a-tok:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+#cmp-a .a-tok.a-on-action {
+  background: var(--hl-action-bg);
+  border-bottom-color: var(--hl-action);
+  box-shadow: -0.18em 0 0 var(--hl-action-bg);
+}
+#cmp-a .a-tok.a-on-constraint {
+  background: var(--hl-constraint-bg);
+  border-bottom-color: var(--hl-constraint);
+  box-shadow: -0.18em 0 0 var(--hl-constraint-bg);
+}
+#cmp-a .a-tok.a-on-genre {
+  background: var(--hl-genre-bg);
+  border-bottom-color: var(--hl-genre);
+  box-shadow: -0.18em 0 0 var(--hl-genre-bg);
+}
+#cmp-a .a-actions {
+  margin-bottom: 0.85rem;
+}
+#cmp-a .feedback ul {
+  margin: 0.35rem 0 0.6rem;
+  padding-left: 1.2rem;
+}
+#cmp-a .feedback li {
+  margin-bottom: 0.2rem;
+}
+#cmp-a .a-fb-cat {
+  margin: 0.7rem 0 0.15rem;
+  font-weight: 700;
+}
+#cmp-a .a-fb-cat:first-child {
+  margin-top: 0.2rem;
+}
+#cmp-a .a-why {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin: 0.1rem 0 0;
+}
+
+/* ===== Composant B ===== */
+#cmp-b .b-intro { margin: 0 0 .75rem; color: var(--ink-soft); }
+#cmp-b .b-score { font-weight: 700; color: var(--primary); margin: 0 0 1rem; }
+#cmp-b .b-list { display: grid; gap: .85rem; }
+#cmp-b .b-item { transition: border-color .15s ease, background-color .15s ease; border: 2px solid transparent; }
+#cmp-b .b-prompt { margin: 0 0 .6rem; font-weight: 600; }
+#cmp-b .b-choices { gap: .5rem; flex-wrap: wrap; }
+#cmp-b .b-btn[aria-pressed="true"] { outline: 2px solid var(--primary); outline-offset: 1px; }
+#cmp-b .b-item.is-correct { border-color: var(--ok); background-color: color-mix(in srgb, var(--ok) 10%, var(--surface)); }
+#cmp-b .b-item.is-wrong { border-color: var(--err); background-color: color-mix(in srgb, var(--err) 10%, var(--surface)); }
+#cmp-b .b-explain { margin: .65rem 0 0; padding-top: .55rem; border-top: 1px dashed var(--surface-alt); color: var(--ink-soft); }
+#cmp-b .b-explain .b-mark { font-weight: 700; }
+#cmp-b .b-item.is-correct .b-mark { color: var(--ok); }
+#cmp-b .b-item.is-wrong .b-mark { color: var(--err); }
+#cmp-b .b-item.is-locked .b-btn { opacity: .55; cursor: not-allowed; }
+#cmp-b .b-item.is-locked .b-btn.is-chosen { opacity: 1; }
+
+/* ===== Composant C ===== */
+.c-instruction {
+  margin: 0 0 1rem;
+  color: var(--ink-soft);
+}
+.c-bar {
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.c-timer {
+  font-size: 2.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.9rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-alt);
+  color: var(--ink);
+  min-width: 5.4rem;
+  text-align: center;
+}
+.c-timer[data-urgent="true"] {
+  color: var(--err);
+  background: color-mix(in srgb, var(--err) 14%, var(--surface-alt));
+  animation: c-pulse 1s ease-in-out infinite;
+}
+@keyframes c-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+.c-controls {
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.c-entry {
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 0.6rem;
+}
+.c-input {
+  flex: 1 1 16rem;
+  min-width: 0;
+  padding: 0.6rem 0.8rem;
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--surface-alt);
+  border-radius: var(--radius-sm);
+}
+.c-input:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+.c-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.c-count {
+  margin: 0.3rem 0 0.6rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.c-chips {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-height: 1.5rem;
+}
+.c-chip-remove {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 1.1em;
+  line-height: 1;
+  margin-left: 0.4rem;
+  padding: 0 0.15rem;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.c-chip-remove:hover,
+.c-chip-remove:focus {
+  opacity: 1;
+}
+.c-bank {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--surface-alt);
+}
+.c-bank-title {
+  margin: 0.4rem 0 0.8rem;
+  color: var(--ink);
+}
+.c-bank-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+.c-group {
+  padding: 0.8rem;
+}
+.c-group-label {
+  margin: 0 0 0.6rem;
+}
+.c-bank-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.c-bank-word {
+  padding: 0.2rem 0.4rem;
+  border-radius: var(--radius-sm);
+  color: var(--ink-soft);
+}
+.c-bank-word[data-found="true"] {
+  background: color-mix(in srgb, var(--ok) 22%, transparent);
+  color: var(--ink);
+  font-weight: 600;
+}
+@media (max-width: 760px) {
+  .c-bank-grid {
+    grid-template-columns: 1fr;
+  }
+  .c-timer {
+    font-size: 2rem;
+  }
+}
+
+/* ===== Composant D ===== */
+#cmp-d .d-intro { margin: 0 0 .85rem; color: var(--ink-soft); }
+#cmp-d .d-quote { margin: 0 0 1rem; font-style: italic; border-left: 4px solid var(--accent); color: var(--ink); }
+#cmp-d .d-label { display: block; font-weight: 600; margin: 0 0 .4rem; }
+#cmp-d .d-text { display: block; width: 100%; box-sizing: border-box; min-height: 5.5rem; resize: vertical; padding: .6rem .7rem; font: inherit; color: var(--ink); background: var(--surface-alt); border: 2px solid var(--surface-alt); border-radius: var(--radius-sm); }
+#cmp-d .d-text:focus { outline: none; border-color: var(--primary); background: var(--surface); }
+#cmp-d .d-model { margin: .85rem 0; }
+#cmp-d .d-model-box { margin-top: .6rem; padding: .7rem .8rem; background: color-mix(in srgb, var(--accent) 10%, var(--surface)); border: 1px dashed var(--accent); border-radius: var(--radius-sm); }
+#cmp-d .d-model-text { margin: 0 0 .5rem; font-style: italic; }
+#cmp-d .d-model-note { margin: 0; color: var(--ink-soft); font-size: .92em; }
+#cmp-d .d-self { margin: 0 0 1rem; padding: 0; border: 0; }
+#cmp-d .d-self-q { padding: 0; font-weight: 600; margin: 0 0 .5rem; }
+#cmp-d .d-self-row { gap: .5rem; flex-wrap: wrap; }
+#cmp-d .d-self-btn[aria-pressed="true"] { outline: 2px solid var(--primary); outline-offset: 1px; background: color-mix(in srgb, var(--primary) 12%, var(--surface)); }
+#cmp-d .d-actions { gap: .5rem; flex-wrap: wrap; }
+#cmp-d .d-mark { font-weight: 700; }
+
+/* ===== Composant E ===== */
+#cmp-e .e-intro { margin: 0 0 .85rem; color: var(--ink-soft); }
+#cmp-e .e-switch { gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+#cmp-e .e-stage { display: grid; gap: 1rem; margin-bottom: 1.1rem; }
+#cmp-e .e-label { margin: 0 0 .6rem; }
+#cmp-e .e-compact-text { margin: 0; line-height: 1.55; text-align: justify; }
+#cmp-e .e-para { margin: 0 0 .55rem; line-height: 1.55; text-indent: 2.2rem; }
+#cmp-e .e-para:last-child { margin-bottom: 0; }
+#cmp-e .e-question { font-weight: 700; color: var(--primary); margin: 0 0 .6rem; }
+#cmp-e .e-pick { gap: .5rem; flex-wrap: wrap; }
+@media (min-width: 720px) {
+  #cmp-e .e-stage { grid-template-columns: 1fr 1fr; align-items: start; }
+  #cmp-e .e-version[hidden] { display: block; }
+}
+
+/* ===== Composant F ===== */
+#cmp-f .f-intro { margin: 0 0 .85rem; color: var(--ink-soft); }
+#cmp-f .f-passes { gap: .5rem; flex-wrap: wrap; margin-bottom: .85rem; }
+#cmp-f .f-lens { margin: 0 0 1rem; font-weight: 700; color: var(--primary); min-height: 1.2em; }
+#cmp-f .f-text { margin-bottom: 1.1rem; }
+#cmp-f .f-sentence { margin: 0; line-height: 2.2; font-size: 1.05rem; }
+#cmp-f .f-tok {
+  font: inherit;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  padding: .1rem .15rem;
+  margin: 0;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  border-bottom: 3px solid transparent;
+  transition: background-color .12s ease, border-color .12s ease;
+}
+#cmp-f .f-tok:hover { background-color: var(--surface-alt); }
+#cmp-f .f-tok:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+#cmp-f .f-tok.is-marked {
+  background-color: color-mix(in srgb, var(--accent) 22%, var(--surface));
+  border-bottom-color: var(--accent-strong);
+  color: var(--ink);
+  font-weight: 600;
+}
+#cmp-f .f-actions { gap: .5rem; flex-wrap: wrap; }
+
+/* ===== Composant G ===== */
+#cmp-g .g-intro { margin: 0 0 .85rem; color: var(--ink-soft); }
+#cmp-g .g-sentence { margin: 0 0 .6rem; font-size: 1.25rem; line-height: 1.5; font-weight: 600; color: var(--ink); min-height: 2.4em; }
+#cmp-g .g-add { background: color-mix(in srgb, var(--accent) 22%, var(--surface)); color: var(--accent-strong); padding: .05em .2em; border-radius: var(--radius-sm); font-weight: 700; }
+#cmp-g .g-note { margin: 0 0 1rem; padding: .55rem .7rem; background: var(--surface-alt); border-left: 3px solid var(--accent); border-radius: var(--radius-sm); color: var(--ink-soft); }
+#cmp-g .g-steps { gap: .5rem; flex-wrap: wrap; margin: 0 0 .85rem; }
+#cmp-g .g-step:disabled { opacity: .45; cursor: not-allowed; }
+#cmp-g .g-step.is-done { opacity: .7; }
+#cmp-g .g-actions { gap: .5rem; flex-wrap: wrap; }
+
+/* ===== Composant H ===== */
+#cmp-h .h-intro { margin: 0 0 .75rem; color: var(--ink-soft); }
+#cmp-h .h-score { font-weight: 700; color: var(--primary); margin: 0 0 1rem; }
+#cmp-h .h-list { display: grid; gap: .9rem; }
+#cmp-h .h-item { border: 2px solid transparent; transition: border-color .15s ease, background-color .15s ease; }
+#cmp-h .h-q { margin: 0 0 .7rem; font-weight: 600; }
+#cmp-h .h-num { color: var(--primary); font-weight: 700; margin-right: .25rem; }
+#cmp-h .h-options { gap: .5rem; }
+#cmp-h .h-opt { text-align: left; justify-content: flex-start; width: 100%; white-space: normal; line-height: 1.45; }
+#cmp-h .h-opt.h-correct { border-color: var(--ok); background-color: color-mix(in srgb, var(--ok) 14%, var(--surface)); color: var(--ink); }
+#cmp-h .h-opt.h-wrong { border-color: var(--err); background-color: color-mix(in srgb, var(--err) 14%, var(--surface)); color: var(--ink); }
+#cmp-h .h-opt .h-mark { font-weight: 700; margin-right: .4rem; }
+#cmp-h .h-opt.h-correct .h-mark { color: var(--ok); }
+#cmp-h .h-opt.h-wrong .h-mark { color: var(--err); }
+#cmp-h .h-item.is-locked .h-opt { cursor: default; }
+#cmp-h .h-item.is-locked .h-opt:not(.h-correct):not(.h-wrong) { opacity: .55; }
+#cmp-h .h-pourquoi { margin: .7rem 0 0; padding-top: .55rem; border-top: 1px dashed var(--surface-alt); color: var(--ink-soft); }
+#cmp-h .h-pourquoi .h-lead { font-weight: 700; color: var(--ink); }
+#cmp-h .h-actions { margin-top: 1rem; flex-wrap: wrap; gap: .5rem; }
+@media (min-width: 720px) {
+  #cmp-h .h-list { gap: 1rem; }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#deck">Aller au contenu</a>
+
+<header class="topbar">
+  <div class="topbar__brand">
+    <span class="topbar__logo" aria-hidden="true">✎</span>
+    <span class="topbar__title">La rédaction, méthode en 4 étapes</span>
+  </div>
+  <div class="topbar__progress">
+    <div class="progress" role="progressbar" aria-label="Progression" aria-valuemin="1" aria-valuemax="13" aria-valuenow="1">
+      <div class="progress__fill" id="progress-fill"></div>
+    </div>
+    <span class="counter" id="counter">1 / 13</span>
+  </div>
+</header>
+
+<main class="deck" id="deck">
+
+  <!-- 1 -->
+  <section class="slide slide--center is-active" data-slide="1" tabindex="-1" aria-label="Diapositive 1 sur 13" aria-hidden="false">
+    <div class="slide__inner">
+      <p class="slide__eyebrow">Méthode de français, collège</p>
+      <h1 class="slide__title slide__title--xl">Réussir sa rédaction</h1>
+      <p class="slide__subtitle">La méthode en 4 étapes</p>
+      <p class="lead">Écrire, ça s'apprend. Voici une méthode simple en quatre étapes pour réussir chaque rédaction.</p>
+      <p><button class="btn btn--primary btn--lg" type="button" data-goto="1">Commencer</button></p>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="slide" data-slide="2" tabindex="-1" aria-label="Diapositive 2 sur 13" aria-hidden="true">
+    <div class="slide__inner">
+      <p class="slide__eyebrow">Avant de commencer</p>
+      <h2 class="slide__title">Pourquoi une méthode ?</h2>
+      <p class="lead">Écrire n'est pas un don : c'est une technique qui s'apprend, pas à pas.</p>
+<div class="row">
+<div class="card">
+<span class="pill">L'entraînement</span>
+<p>Ce sont les petits travaux du quotidien. On exerce une seule compétence à la fois. C'est le « laboratoire » où l'on a le droit de se tromper et de recommencer.</p>
+</div>
+<div class="card">
+<span class="pill">La production</span>
+<p>C'est la rédaction : un travail noté, fait en classe, où l'on rassemble tout ce que l'on a appris pour le mettre en pratique.</p>
+</div>
+</div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="slide" data-slide="3" tabindex="-1" aria-label="Diapositive 3 sur 13" aria-hidden="true">
+    <div class="slide__inner">
+      <p class="slide__eyebrow">Le cadre</p>
+      <h2 class="slide__title">Pourquoi écrire en classe ?</h2>
+      <p class="lead">Pourquoi écrire la rédaction en classe ? Pour trois bonnes raisons.</p>
+<ul>
+<li><strong>L'équité</strong> : personne n'est aidé de l'extérieur, chacun part avec les mêmes chances.</li>
+<li><strong>Un travail authentique</strong> : ce que tu écris est vraiment le tien.</li>
+<li><strong>La gestion du temps et du stress</strong> : on apprend à s'organiser dans un temps limité.</li>
+</ul>
+<p>Côté rythme, on prévoit environ une grande rédaction par séquence.</p>
+<div class="row">
+<div class="card">
+<span class="pill">Cycle 3 (6e, 5e)</span>
+<p>Environ 15 à 20 lignes.</p>
+</div>
+<div class="card">
+<span class="pill">Cycle 4 (4e, 3e)</span>
+<p>Environ 40 lignes, soit à peu près 2 pages.</p>
+</div>
+</div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="slide" data-slide="4" tabindex="-1" aria-label="Diapositive 4 sur 13" aria-hidden="true">
+    <div class="slide__inner">
+      <p class="slide__eyebrow">Vue d'ensemble</p>
+      <h2 class="slide__title">Les 4 étapes</h2>
+      <p class="lead">La méthode tient en quatre étapes. On les suit dans l'ordre.</p>
+<ol class="stack">
+<li><strong>Analyser la consigne.</strong> Bien comprendre ce que l'on attend de toi.</li>
+<li><strong>Construire son vocabulaire.</strong> Rassembler les mots utiles avant d'écrire.</li>
+<li><strong>Faire son plan et son brouillon « sandwich ».</strong> Organiser ses idées du début à la fin.</li>
+<li><strong>Mettre en forme et relire.</strong> Soigner la présentation et corriger ses erreurs.</li>
+</ol>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="slide" data-slide="5" tabindex="-1" aria-label="Diapositive 5 sur 13" aria-hidden="true">
+    <div class="slide__inner">
+      <p class="slide__eyebrow">Étape 1 sur 4</p>
+      <h2 class="slide__title">Analyser la consigne</h2>
+      <p class="lead">Avant d'écrire, comprends exactement ce qu'on te demande. Surligne la consigne en trois couleurs, puis repère le genre du texte attendu.</p>
+      <h3 class="slide__sub">À toi : surligne la consigne</h3>
+      <div class="cmp" id="cmp-a"><p class="a-instruction">Choisis un surligneur, puis clique sur les mots clés de la consigne. Reclique avec le même surligneur pour effacer une couleur.</p>
+
+<div class="a-pens row" role="group" aria-label="Surligneurs">
+  <button type="button" class="a-pen a-pen--action" id="a-pen-action" aria-pressed="false">
+    <span class="a-pen-dot"></span> Actions
+  </button>
+  <button type="button" class="a-pen a-pen--constraint" id="a-pen-constraint" aria-pressed="false">
+    <span class="a-pen-dot"></span> Contraintes
+  </button>
+  <button type="button" class="a-pen a-pen--genre" id="a-pen-genre" aria-pressed="false">
+    <span class="a-pen-dot"></span> Genre
+  </button>
+</div>
+
+<p class="a-legend">
+  <span class="a-legend-item"><span class="a-swatch a-swatch--action"></span> Actions (ce que tu dois faire)</span>
+  <span class="a-legend-item"><span class="a-swatch a-swatch--constraint"></span> Contraintes (le cadre à respecter)</span>
+  <span class="a-legend-item"><span class="a-swatch a-swatch--genre"></span> Genre (le type de texte)</span>
+</p>
+
+<div class="card a-consigne" id="a-consigne">
+  <p class="a-consigne-text">
+    <button type="button" class="a-tok" data-cat="action">Rédige</button> <button type="button" class="a-tok" data-cat="genre">la suite de ce récit</button> : <button type="button" class="a-tok" data-cat="constraint">ton personnage principal</button>, perdu dans <button type="button" class="a-tok" data-cat="constraint">une forêt</button> <button type="button" class="a-tok" data-cat="constraint">à la tombée de la nuit</button>, <button type="button" class="a-tok" data-cat="">découvre</button> <button type="button" class="a-tok" data-cat="constraint">une cabane abandonnée</button>. <button type="button" class="a-tok" data-cat="action">Raconte</button> ce qu'il ressent et ce qu'il trouve <button type="button" class="a-tok" data-cat="">à l'intérieur</button>. <button type="button" class="a-tok" data-cat="constraint">(Environ 20 lignes.)</button>
+  </p>
+</div>
+
+<div class="a-actions row">
+  <button type="button" class="btn btn--primary" id="a-check">Vérifier</button>
+  <button type="button" class="btn btn--ghost" id="a-clear">Effacer</button>
+</div>
+
+<div class="feedback" id="a-feedback" hidden></div></div>
+      <h3 class="slide__sub">Narratif ou descriptif ?</h3>
+      <div class="cmp" id="cmp-b"><p class="b-intro">Lis chaque consigne, puis choisis si elle demande un texte <strong>narratif</strong> (une action qui se déroule) ou <strong>descriptif</strong> (un lieu, une personne que l'on peint).</p>
+<p class="b-score" id="b-score" aria-live="polite">Score : <span id="b-score-val">0</span> / 4</p>
+<div class="b-list" id="b-list">
+  <div class="card b-item" data-answer="descriptif" data-explain="« Décris » demande de peindre un lieu en détail. On s'arrête pour montrer : c'est descriptif.">
+    <p class="b-prompt">1. « Décris la chambre où tu as grandi. »</p>
+    <div class="row b-choices">
+      <button type="button" class="btn btn--ghost b-btn" data-choice="narratif">Narratif</button>
+      <button type="button" class="btn btn--ghost b-btn" data-choice="descriptif">Descriptif</button>
+    </div>
+    <p class="b-explain" hidden></p>
+  </div>
+  <div class="card b-item" data-answer="narratif" data-explain="« Raconte » et « le jour où » annoncent une action qui se déroule dans le temps : c'est narratif.">
+    <p class="b-prompt">2. « Raconte le jour où tout a basculé. »</p>
+    <div class="row b-choices">
+      <button type="button" class="btn btn--ghost b-btn" data-choice="narratif">Narratif</button>
+      <button type="button" class="btn btn--ghost b-btn" data-choice="descriptif">Descriptif</button>
+    </div>
+    <p class="b-explain" hidden></p>
+  </div>
+  <div class="card b-item" data-answer="descriptif" data-explain="Un portrait peint quelqu'un, ses traits, l'impression qu'il donne : c'est descriptif.">
+    <p class="b-prompt">3. « Fais le portrait d'un personnage qui inquiète dès le premier regard. »</p>
+    <div class="row b-choices">
+      <button type="button" class="btn btn--ghost b-btn" data-choice="narratif">Narratif</button>
+      <button type="button" class="btn btn--ghost b-btn" data-choice="descriptif">Descriptif</button>
+    </div>
+    <p class="b-explain" hidden></p>
+  </div>
+  <div class="card b-item" data-answer="narratif" data-explain="Une rencontre est un événement qui avance dans le temps : c'est narratif.">
+    <p class="b-prompt">4. « Imagine la rencontre entre ton héros et un inconnu. »</p>
+    <div class="row b-choices">
+      <button type="button" class="btn btn--ghost b-btn" data-choice="narratif">Narratif</button>
+      <button type="button" class="btn btn--ghost b-btn" data-choice="descriptif">Descriptif</button>
+    </div>
+    <p class="b-explain" hidden></p>
+  </div>
+</div>
+<div class="feedback" id="b-feedback" hidden></div></div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="slide" data-slide="6" tabindex="-1" aria-label="Diapositive 6 sur 13" aria-hidden="true">
+    <div class="slide__inner">
+      <p class="slide__eyebrow">Étape 2 sur 4</p>
+      <h2 class="slide__title">Construire son vocabulaire</h2>
+      <p class="lead">Avant de rédiger, on rassemble des mots. On les classe par catégories et on cherche des synonymes pour éviter les répétitions. Les textes de la séquence sont ta meilleure banque de mots.</p>
+      <h3 class="slide__sub">Le champ lexical de la peur</h3>
+      <div class="cmp" id="cmp-c"><p class="c-instruction">Trouve le plus de mots possible sur le thème de la peur. Lance le chronomètre, ajoute tes mots, puis compare-les à la banque proposée.</p>
+<div class="c-bar row">
+  <div class="c-timer" id="c-timer" data-urgent="false" role="timer" aria-live="off">02:00</div>
+  <div class="row c-controls">
+    <button type="button" class="btn btn--primary" id="c-start">Démarrer</button>
+    <button type="button" class="btn btn--accent" id="c-stop" disabled>Terminer</button>
+    <button type="button" class="btn btn--ghost" id="c-reset">Recommencer</button>
+  </div>
+</div>
+<div class="c-entry row">
+  <label class="visually-hidden" for="c-input">Écris un mot lié à la peur</label>
+  <input type="text" id="c-input" class="c-input" placeholder="Écris un mot et appuie sur Entrée" autocomplete="off" disabled>
+  <button type="button" class="btn btn--primary" id="c-add" disabled>Ajouter</button>
+</div>
+<p class="c-count" id="c-count">Mots trouvés : 0</p>
+<ul class="c-chips" id="c-chips" aria-label="Mots trouvés"></ul>
+<div class="c-bank" id="c-bank" hidden>
+  <h4 class="c-bank-title">Banque de mots sur la peur</h4>
+  <div class="c-bank-grid">
+    <div class="card c-group" id="c-group-noms">
+      <p class="pill c-group-label">noms</p>
+      <ul class="c-bank-list" id="c-bank-noms"></ul>
+    </div>
+    <div class="card c-group" id="c-group-verbes">
+      <p class="pill c-group-label">verbes</p>
+      <ul class="c-bank-list" id="c-bank-verbes"></ul>
+    </div>
+    <div class="card c-group" id="c-group-adjectifs">
+      <p class="pill c-group-label">adjectifs</p>
+      <ul class="c-bank-list" id="c-bank-adjectifs"></ul>
+    </div>
+  </div>
+</div>
+<div class="feedback" id="c-feedback" hidden></div></div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="slide" data-slide="7" tabindex="-1" aria-label="Diapositive 7 sur 13" aria-hidden="true">
+    <div class="slide__inner">
+      <p class="slide__eyebrow">Étape 3 sur 4</p>
+      <h2 class="slide__title">Le plan et le brouillon « sandwich »</h2>
+      <p class="lead">On ne rédige pas tout au brouillon, c'est une perte de temps. On note une idée par ligne (le squelette), puis on écrit d'abord l'introduction et la conclusion, pour que la fin réponde au début.</p>
+      <h3 class="slide__sub">Le défi « sandwich »</h3>
+      <div class="cmp" id="cmp-d"><p class="d-intro">Lis le début d'un récit, puis écris une fin d'environ trois lignes qui « boucle » avec lui : reprends un mot ou une idée du début pour que la fin lui réponde.</p>
+<blockquote class="card d-quote" id="d-quote">« Ce matin-là, Léa ne se doutait de rien. Elle poussa la porte de la vieille maison, persuadée qu'elle y passerait un après-midi tranquille. »</blockquote>
+<label class="d-label" for="d-text">Ta conclusion (environ trois lignes) :</label>
+<textarea class="d-text" id="d-text" rows="4" placeholder="Écris ici la fin de l'histoire de Léa..."></textarea>
+<div class="d-model">
+  <button type="button" class="btn btn--ghost btn--sm d-show" id="d-show" aria-expanded="false" aria-controls="d-model-box">Voir un modèle</button>
+  <div class="d-model-box" id="d-model-box" hidden>
+    <p class="d-model-text">« Quand Léa ressortit enfin, la nuit était tombée. Elle savait désormais que cette maison ne resterait jamais tranquille. »</p>
+    <p class="d-model-note">Elle boucle parce qu'elle reprend « Léa », « maison » et « tranquille ».</p>
+  </div>
+</div>
+<fieldset class="d-self">
+  <legend class="d-self-q">Ta conclusion reprend-elle un élément de l'introduction ?</legend>
+  <div class="row d-self-row">
+    <button type="button" class="btn btn--ghost d-self-btn" id="d-self-oui" data-self="oui" aria-pressed="false">Oui</button>
+    <button type="button" class="btn btn--ghost d-self-btn" id="d-self-non" data-self="non" aria-pressed="false">Non</button>
+  </div>
+</fieldset>
+<div class="row d-actions">
+  <button type="button" class="btn btn--primary d-check" id="d-check">Vérifier ma boucle</button>
+  <button type="button" class="btn btn--ghost d-reset" id="d-reset">Recommencer</button>
+</div>
+<div class="feedback" id="d-feedback" hidden></div></div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="slide" data-slide="8" tabindex="-1" aria-label="Diapositive 8 sur 13" aria-hidden="true">
+    <div class="slide__inner">
+      <p class="slide__eyebrow">Étape 4 sur 4</p>
+      <h2 class="slide__title">Mettre en forme et relire</h2>
+      <p class="lead">La mise en forme se voit : un alinéa à chaque nouvelle idée guide ton lecteur. Ensuite, on relit trois fois, avec trois paires de lunettes.</p>
+      <h3 class="slide__sub">L'alinéa, ça change tout</h3>
+      <div class="cmp" id="cmp-e"><p class="e-intro">Voici le même texte présenté de deux façons. Change de version, observe la mise en page, puis dis laquelle te donne le plus envie de lire.</p>
+<div class="row e-switch" role="group" aria-label="Choix de la version">
+  <button type="button" class="btn btn--primary e-tab" id="e-tab-compact" data-view="compact" aria-pressed="true">Version compacte</button>
+  <button type="button" class="btn btn--ghost e-tab" id="e-tab-aere" data-view="aere" aria-pressed="false">Version aérée</button>
+</div>
+<div class="e-stage">
+  <article class="card e-version" id="e-compact" data-view="compact" aria-label="Version compacte">
+    <p class="pill e-label">Version compacte</p>
+    <p class="e-compact-text">Le matin, Tom se leva tôt. Il prépara son sac et vérifia sa lampe. Dehors, le brouillard couvrait le jardin. On ne voyait pas plus loin que la barrière. Soudain, un bruit sourd monta de la cave. Tom retint son souffle et descendit l'escalier.</p>
+  </article>
+  <article class="card e-version" id="e-aere" data-view="aere" aria-label="Version aérée" hidden>
+    <p class="pill e-label">Version aérée</p>
+    <p class="e-para">Le matin, Tom se leva tôt. Il prépara son sac et vérifia sa lampe.</p>
+    <p class="e-para">Dehors, le brouillard couvrait le jardin. On ne voyait pas plus loin que la barrière.</p>
+    <p class="e-para">Soudain, un bruit sourd monta de la cave. Tom retint son souffle et descendit l'escalier.</p>
+  </article>
+</div>
+<p class="e-question">Laquelle donne le plus envie de lire ?</p>
+<div class="row e-pick">
+  <button type="button" class="btn btn--accent e-pick-btn" data-pick="compacte">La compacte</button>
+  <button type="button" class="btn btn--accent e-pick-btn" data-pick="aeree">L'aérée</button>
+</div>
+<div class="feedback" id="e-feedback" hidden></div></div>
+      <h3 class="slide__sub">Relecture en trois passages</h3>
+      <div class="cmp" id="cmp-f"><p class="f-intro">On relit un texte en trois passages, chacun avec un regard précis. Choisis un passage, clique sur les mots qui posent un problème pour ce regard, puis vérifie. Chaque passage garde ses propres marques.</p>
+<div class="row f-passes" role="group" aria-label="Choix du passage de relecture">
+  <button type="button" class="btn btn--primary f-pass" id="f-pass-1" data-pass="1" aria-pressed="true">1. Le sens</button>
+  <button type="button" class="btn btn--ghost f-pass" id="f-pass-2" data-pass="2" aria-pressed="false">2. Le temps (les verbes)</button>
+  <button type="button" class="btn btn--ghost f-pass" id="f-pass-3" data-pass="3" aria-pressed="false">3. L'orthographe</button>
+</div>
+<p class="f-lens" id="f-lens" aria-live="polite"></p>
+<div class="card f-text" id="f-text">
+  <p class="f-sentence">
+    <button type="button" class="f-tok" data-word="Hier">Hier,</button> <button type="button" class="f-tok" data-word="les">les</button> <button type="button" class="f-tok" data-word="enfants">enfants</button> <button type="button" class="f-tok" data-word="joue" data-p1="1" data-p2="1">joue</button> <button type="button" class="f-tok" data-word="dans">dans</button> <button type="button" class="f-tok" data-word="le">le</button> <button type="button" class="f-tok" data-word="jardin">jardin.</button> <button type="button" class="f-tok" data-word="Ils">Ils</button> <button type="button" class="f-tok" data-word="ont">ont</button> <button type="button" class="f-tok" data-word="décidés" data-p2="1">décidés</button> <button type="button" class="f-tok" data-word="de">de</button> <button type="button" class="f-tok" data-word="construire">construire</button> <button type="button" class="f-tok" data-word="une">une</button> <button type="button" class="f-tok" data-word="cabane">cabane,</button> <button type="button" class="f-tok" data-word="mais">mais</button> <button type="button" class="f-tok" data-word="la">la</button> <button type="button" class="f-tok" data-word="pluie">pluie</button> <button type="button" class="f-tok" data-word="commence" data-p1="1">commence</button> <button type="button" class="f-tok" data-word="à">à</button> <button type="button" class="f-tok" data-word="tomber">tomber.</button> <button type="button" class="f-tok" data-word="Bientôt">Bientôt,</button> <button type="button" class="f-tok" data-word="ils">ils</button> <button type="button" class="f-tok" data-word="sont" data-p1="1">sont</button> <button type="button" class="f-tok" data-word="tout">tout</button> <button type="button" class="f-tok" data-word="mouillé" data-p3="1">mouillé</button> <button type="button" class="f-tok" data-word="et">et</button> <button type="button" class="f-tok" data-word="rentre" data-p1="1" data-p2="1">rentre</button> <button type="button" class="f-tok" data-word="à2">à</button> <button type="button" class="f-tok" data-word="la2">la</button> <button type="button" class="f-tok" data-word="maison">maison.</button>
+  </p>
+</div>
+<div class="row f-actions">
+  <button type="button" class="btn btn--accent" id="f-check">Vérifier ce passage</button>
+  <button type="button" class="btn btn--ghost" id="f-reset">Recommencer</button>
+</div>
+<div class="feedback" id="f-feedback" hidden></div></div>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="slide" data-slide="9" tabindex="-1" aria-label="Diapositive 9 sur 13" aria-hidden="true">
+    <div class="slide__inner">
+      <p class="slide__eyebrow">L'évaluation</p>
+      <h2 class="slide__title">Comment on est évalué</h2>
+      <p class="lead">Comment es-tu évalué ? La rédaction est notée sur 20 points : 12 points pour le fond (les idées) et 8 points pour la forme (l'écriture).</p>
+<p>Le fond compte le plus, mais les deux comptent : il faut soigner l'un comme l'autre.</p>
+      <div class="eval">
+        <div class="eval__ring">
+          <svg class="ring" viewBox="0 0 200 200" role="img" aria-label="Répartition des points sur 20 : 12 points pour le fond, 8 points pour la forme.">
+            <g transform="rotate(-90 100 100)">
+              <circle class="ring__track" cx="100" cy="100" r="80"></circle>
+              <circle class="ring__fond" cx="100" cy="100" r="80" stroke-dasharray="301.59 502.655" stroke-dashoffset="0"></circle>
+              <circle class="ring__forme" cx="100" cy="100" r="80" stroke-dasharray="201.06 502.655" stroke-dashoffset="-301.59"></circle>
+            </g>
+            <text class="ring__num" x="100" y="98" text-anchor="middle">12 / 8</text>
+            <text class="ring__lbl" x="100" y="120" text-anchor="middle">FOND / FORME</text>
+          </svg>
+          <div class="legend">
+            <div class="legend__row"><span class="swatch swatch--fond" aria-hidden="true"></span> Le fond : 12 points</div>
+            <div class="legend__row"><span class="swatch swatch--forme" aria-hidden="true"></span> La forme : 8 points</div>
+          </div>
+        </div>
+        <div class="eval__detail">
+          <div class="card">
+            <span class="pill">Le fond, 12 points</span>
+            <ul><li><strong>L'invention</strong> : la richesse et l'originalité des idées.</li>
+<li><strong>Le respect de la consigne</strong> : tu fais bien ce qui est demandé.</li>
+<li><strong>La structure</strong> : un texte organisé, avec un début, un milieu et une fin.</li>
+<li><strong>Le vocabulaire</strong> : des mots précis et variés.</li></ul>
+          </div>
+          <div class="card">
+            <span class="pill">La forme, 8 points</span>
+            <ul><li><strong>L'orthographe</strong> : les mots sont bien écrits.</li>
+<li><strong>La syntaxe</strong> : les phrases sont correctes et claires.</li>
+<li><strong>La ponctuation</strong> : les points et les virgules sont bien placés.</li>
+<li><strong>La présentation</strong> : une copie propre et bien lisible.</li></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section class="slide" data-slide="10" tabindex="-1" aria-label="Diapositive 10 sur 13" aria-hidden="true">
+    <div class="slide__inner">
+      <p class="slide__eyebrow">Aller plus loin</p>
+      <h2 class="slide__title">Progresser</h2>
+      <p class="lead">Ton professeur te fixe deux objectifs personnels, le « post-it bonus ». Si tu les appliques au devoir suivant, tu gagnes un bonus. On s'entraîne aussi à enrichir une phrase trop simple, pour la rendre plus vivante.</p>
+      <h3 class="slide__sub">De la phrase pauvre à la phrase riche</h3>
+      <div class="cmp" id="cmp-g"><p class="g-intro">Une phrase pauvre dit les choses sans les montrer. Appuie sur chaque étape, dans l'ordre, pour l'enrichir peu à peu. La partie ajoutée apparaît en couleur.</p>
+<p class="g-sentence" id="g-sentence" aria-live="polite">Il a peur.</p>
+<p class="g-note" id="g-note">Phrase de départ. Elle dit la peur, mais ne la fait pas ressentir.</p>
+<div class="row g-steps" id="g-steps">
+  <button type="button" class="btn btn--accent btn--sm g-step" data-step="1">Quand ?</button>
+  <button type="button" class="btn btn--accent btn--sm g-step" data-step="2" disabled>Où ?</button>
+  <button type="button" class="btn btn--accent btn--sm g-step" data-step="3" disabled>Sensation physique</button>
+  <button type="button" class="btn btn--accent btn--sm g-step" data-step="4" disabled>Personnage précis</button>
+  <button type="button" class="btn btn--accent btn--sm g-step" data-step="5" disabled>Une image</button>
+</div>
+<div class="row g-actions">
+  <button type="button" class="btn btn--ghost g-reset" id="g-reset">Recommencer</button>
+</div>
+<div class="feedback" id="g-feedback" hidden></div></div>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section class="slide" data-slide="11" tabindex="-1" aria-label="Diapositive 11 sur 13" aria-hidden="true">
+    <div class="slide__inner">
+      <p class="slide__eyebrow">L'examen</p>
+      <h2 class="slide__title">Le brevet (DNB)</h2>
+      <p class="lead">Au brevet (DNB), l'épreuve dure 1h30 au total : réflexion, brouillon et propreté comprises.</p>
+<p>Le dictionnaire sert surtout à vérifier les homophones (et/est, ces/ses) et à trouver des synonymes. Il ne sert pas à chercher tous les mots.</p>
+<div class="row">
+<div class="card">
+<span class="pill">Le sujet d'invention</span>
+<p>On fait appel à l'empathie et à l'imagination pour inventer une histoire ou se mettre à la place d'un personnage.</p>
+</div>
+<div class="card">
+<span class="pill">Le sujet de réflexion</span>
+<p>On défend un point de vue avec logique, des connecteurs (« d'abord », « en revanche », « par conséquent ») et des exemples culturels précis.</p>
+</div>
+</div>
+    </div>
+  </section>
+
+  <!-- 12 -->
+  <section class="slide" data-slide="12" tabindex="-1" aria-label="Diapositive 12 sur 13" aria-hidden="true">
+    <div class="slide__inner">
+      <p class="slide__eyebrow">On récapitule</p>
+      <h2 class="slide__title">Récapitulatif et quiz</h2>
+      <p class="lead">Récapitulons la méthode, puis teste-toi avec six questions.</p>
+      <ol class="stack">
+        <li><strong>Analyser la consigne.</strong></li>
+        <li><strong>Construire le vocabulaire.</strong></li>
+        <li><strong>Faire le plan et le brouillon « sandwich ».</strong></li>
+        <li><strong>Mettre en forme et relire.</strong></li>
+      </ol>
+      <h3 class="slide__sub">Quiz : 6 questions</h3>
+      <div class="cmp" id="cmp-h"><p class="h-intro">Six questions pour vérifier ta méthode. Choisis une réponse par question. Chaque réponse se verrouille et t'explique pourquoi. Le score s'affiche à la fin.</p>
+<p class="h-score" id="h-score" aria-live="polite">Score : <span id="h-score-val">0</span> / 6</p>
+<div class="h-list" id="h-list" aria-label="Questions du quiz">
+  <div class="card h-item" data-pourquoi="On analyse d'abord la consigne, puis on rassemble les mots, on organise, et on met en forme à la fin.">
+    <p class="h-q"><span class="h-num">1.</span> Dans quel ordre faut-il travailler ?</p>
+    <div class="stack h-options">
+      <button type="button" class="btn btn--ghost h-opt" data-correct="true">1) Analyser la consigne, 2) Construire le vocabulaire, 3) Plan et brouillon, 4) Mise en forme et relecture.</button>
+      <button type="button" class="btn btn--ghost h-opt" data-correct="false">1) Écrire au propre, 2) Relire, 3) Analyser, 4) Faire le plan.</button>
+      <button type="button" class="btn btn--ghost h-opt" data-correct="false">1) Faire le plan, 2) Analyser la consigne, 3) Rédiger, 4) Choisir des mots.</button>
+    </div>
+    <p class="h-pourquoi" hidden></p>
+  </div>
+  <div class="card h-item" data-pourquoi="En classe, personne n'est aidé de l'extérieur et on apprend à gérer le temps et le stress.">
+    <p class="h-q"><span class="h-num">2.</span> Pourquoi rédige-t-on souvent en classe ?</p>
+    <div class="stack h-options">
+      <button type="button" class="btn btn--ghost h-opt" data-correct="true">Pour garantir l'équité, produire un travail authentique et apprendre à gérer le temps.</button>
+      <button type="button" class="btn btn--ghost h-opt" data-correct="false">Parce qu'il est interdit d'écrire à la maison.</button>
+      <button type="button" class="btn btn--ghost h-opt" data-correct="false">Pour que le professeur ait moins de copies à corriger.</button>
+    </div>
+    <p class="h-pourquoi" hidden></p>
+  </div>
+  <div class="card h-item" data-pourquoi="On écrit d'abord l'introduction et la conclusion pour que la fin boucle avec le début.">
+    <p class="h-q"><span class="h-num">3.</span> Que rédige-t-on en premier au brouillon ?</p>
+    <div class="stack h-options">
+      <button type="button" class="btn btn--ghost h-opt" data-correct="true">L'introduction et la conclusion.</button>
+      <button type="button" class="btn btn--ghost h-opt" data-correct="false">Tout le texte, directement au propre.</button>
+      <button type="button" class="btn btn--ghost h-opt" data-correct="false">Seulement le titre.</button>
+    </div>
+    <p class="h-pourquoi" hidden></p>
+  </div>
+  <div class="card h-item" data-pourquoi="Le fond (idées, consigne, structure, vocabulaire) vaut 12 points ; la forme (orthographe, syntaxe, ponctuation, présentation) vaut 8 points.">
+    <p class="h-q"><span class="h-num">4.</span> Comment se répartissent les points (barème 12/8) ?</p>
+    <div class="stack h-options">
+      <button type="button" class="btn btn--ghost h-opt" data-correct="true">12 points pour le fond, 8 points pour la forme.</button>
+      <button type="button" class="btn btn--ghost h-opt" data-correct="false">8 points pour le fond, 12 points pour la forme.</button>
+      <button type="button" class="btn btn--ghost h-opt" data-correct="false">10 points pour le fond, 10 points pour la forme.</button>
+    </div>
+    <p class="h-pourquoi" hidden></p>
+  </div>
+  <div class="card h-item" data-pourquoi="On relit trois fois : pour le sens, pour les temps des verbes, puis pour l'orthographe.">
+    <p class="h-q"><span class="h-num">5.</span> Quels sont les trois passages de relecture ?</p>
+    <div class="stack h-options">
+      <button type="button" class="btn btn--ghost h-opt" data-correct="true">Le sens, le temps (les verbes), l'orthographe.</button>
+      <button type="button" class="btn btn--ghost h-opt" data-correct="false">Le titre, la longueur, la couleur.</button>
+      <button type="button" class="btn btn--ghost h-opt" data-correct="false">La vitesse, le bruit, la fatigue.</button>
+    </div>
+    <p class="h-pourquoi" hidden></p>
+  </div>
+  <div class="card h-item" data-pourquoi="Le dictionnaire sert surtout à vérifier les homophones et à éviter les répétitions, pas à chercher chaque mot.">
+    <p class="h-q"><span class="h-num">6.</span> À quoi sert surtout le dictionnaire au brevet ?</p>
+    <div class="stack h-options">
+      <button type="button" class="btn btn--ghost h-opt" data-correct="true">À vérifier les homophones (et/est, ces/ses) et à trouver des synonymes.</button>
+      <button type="button" class="btn btn--ghost h-opt" data-correct="false">À chercher tous les mots du texte.</button>
+      <button type="button" class="btn btn--ghost h-opt" data-correct="false">Il est interdit au brevet.</button>
+    </div>
+    <p class="h-pourquoi" hidden></p>
+  </div>
+</div>
+<div class="row h-actions">
+  <button type="button" class="btn btn--ghost h-reset" id="h-reset" hidden>Recommencer le quiz</button>
+</div>
+<div class="feedback" id="h-feedback" hidden></div></div>
+    </div>
+  </section>
+
+  <!-- 13 -->
+  <section class="slide slide--center" data-slide="13" tabindex="-1" aria-label="Diapositive 13 sur 13" aria-hidden="true">
+    <div class="slide__inner">
+      <p class="slide__eyebrow">Bravo</p>
+      <h2 class="slide__title slide__title--xl">À toi de jouer</h2>
+      <p class="lead">Analyser, construire le vocabulaire, organiser puis relire : quatre étapes pour réussir sa rédaction.</p>
+      <p><button class="btn btn--primary btn--lg" type="button" data-goto="0">Revenir au début</button></p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="navbar">
+  <button class="btn btn--ghost nav-btn" id="btn-prev" type="button"><span aria-hidden="true">←</span> Précédent</button>
+  <div class="dots" id="dots" aria-hidden="true"></div>
+  <button class="btn btn--primary nav-btn" id="btn-next" type="button">Suivant <span aria-hidden="true">→</span></button>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ----- Shared helpers used by every interactive component ----- */
+  var __ready = [];
+  window.whenReady = function(fn){ __ready.push(fn); };
+  window.setFeedback = function(el, status, html){
+    if(!el){ return; }
+    el.className = 'feedback feedback--' + status;
+    el.innerHTML = html;
+    el.hidden = false;
+  };
+  window.clearFeedback = function(el){
+    if(!el){ return; }
+    el.className = 'feedback';
+    el.innerHTML = '';
+    el.hidden = true;
+  };
+
+  /* ----- Interactive components register here (injected at build) ----- */
+    /* ===== Composant A ===== */
+whenReady(function(){
+  var root = document.getElementById('cmp-a');
+  if (!root) { return; }
+
+  var feedback = root.querySelector('#a-feedback');
+  var tokens = Array.prototype.slice.call(root.querySelectorAll('.a-tok'));
+  var pens = {
+    action: root.querySelector('#a-pen-action'),
+    constraint: root.querySelector('#a-pen-constraint'),
+    genre: root.querySelector('#a-pen-genre')
+  };
+
+  var activePen = null;
+
+  // Libelles affiches pour chaque categorie.
+  var catLabel = { action: 'Actions', constraint: 'Contraintes', genre: 'Genre' };
+
+  // Phrase "pourquoi" propre a chaque categorie.
+  var why = {
+    action: 'Les verbes de consigne disent ce que tu dois faire : ici, « Rédige » et « Raconte ».',
+    constraint: 'Les contraintes fixent le cadre à respecter : le personnage, le lieu (la forêt), le moment (la tombée de la nuit), la cabane et la longueur (environ 20 lignes).',
+    genre: '« la suite de ce récit » annonce le type de texte attendu : un récit, donc un texte narratif.'
+  };
+
+  // Texte "joli" a afficher pour chaque token, avec accents.
+  var pretty = {
+    'Redige': 'Rédige',
+    'la suite de ce recit': 'la suite de ce récit',
+    'ton personnage principal': 'ton personnage principal',
+    'une foret': 'une forêt',
+    'a la tombee de la nuit': 'à la tombée de la nuit',
+    'une cabane abandonnee': 'une cabane abandonnée',
+    'Raconte': 'Raconte',
+    'decouvre': 'découvre',
+    'a l’interieur': 'à l’intérieur',
+    'a l\'interieur': 'à l’intérieur',
+    '(Environ 20 lignes.)': '(Environ 20 lignes.)'
+  };
+
+  function prettyOf(tok) {
+    var raw = tok.textContent.replace(/\s+/g, ' ').trim();
+    return pretty[raw] || raw;
+  }
+
+  // categorie actuellement posee sur un token : '' si aucune.
+  function currentCat(tok) {
+    if (tok.classList.contains('a-on-action')) { return 'action'; }
+    if (tok.classList.contains('a-on-constraint')) { return 'constraint'; }
+    if (tok.classList.contains('a-on-genre')) { return 'genre'; }
+    return '';
+  }
+
+  function paint(tok, cat) {
+    tok.classList.remove('a-on-action', 'a-on-constraint', 'a-on-genre');
+    if (cat) {
+      tok.classList.add('a-on-' + cat);
+      tok.setAttribute('data-marked', cat);
+    } else {
+      tok.removeAttribute('data-marked');
+    }
+  }
+
+  function selectPen(cat) {
+    activePen = (activePen === cat) ? null : cat;
+    Object.keys(pens).forEach(function(key){
+      pens[key].setAttribute('aria-pressed', String(key === activePen));
+    });
+  }
+
+  Object.keys(pens).forEach(function(key){
+    pens[key].addEventListener('click', function(){ selectPen(key); });
+  });
+
+  tokens.forEach(function(tok){
+    tok.addEventListener('click', function(){
+      if (!activePen) {
+        setFeedback(feedback, 'info', 'Choisis d’abord un surligneur (Actions, Contraintes ou Genre), puis clique sur un mot.');
+        return;
+      }
+      var now = currentCat(tok);
+      if (now === activePen) {
+        paint(tok, '');           // meme surligneur : on efface
+      } else {
+        paint(tok, activePen);    // surligneur different : on recolorie
+      }
+    });
+  });
+
+  function listFr(arr) {
+    var quoted = arr.map(function(w){ return '« ' + w + ' »'; });
+    if (quoted.length === 1) { return quoted[0]; }
+    return quoted.slice(0, -1).join(', ') + ' et ' + quoted[quoted.length - 1];
+  }
+
+  function check() {
+    var cats = ['action', 'constraint', 'genre'];
+    var html = '';
+    var allGood = true;
+
+    cats.forEach(function(cat){
+      var correctFound = [];   // bonnes trouvailles (bon mot, bonne couleur)
+      var missed = [];         // oublis (a colorier dans cette couleur, non fait)
+      var miscolored = [];     // mots colories ici a tort, qui vont ailleurs
+
+      tokens.forEach(function(tok){
+        var expected = tok.getAttribute('data-cat');   // categorie correcte ('' = distracteur)
+        var marked = tok.getAttribute('data-marked') || '';
+        var name = prettyOf(tok);
+
+        if (expected === cat && marked === cat) {
+          correctFound.push(name);
+        } else if (expected === cat && marked !== cat) {
+          missed.push(name);
+        } else if (expected !== cat && marked === cat && expected !== '') {
+          // colorie dans CETTE couleur, mais appartient a une AUTRE categorie reelle
+          miscolored.push(name + ' (plutôt ' + catLabel[expected] + ')');
+        }
+      });
+
+      if (missed.length || miscolored.length) { allGood = false; }
+
+      html += '<p class="a-fb-cat">' + catLabel[cat] + '</p>';
+      var lines = [];
+      if (correctFound.length) {
+        lines.push('<li>Bonnes trouvailles : ' + listFr(correctFound) + '.</li>');
+      }
+      if (missed.length) {
+        lines.push('<li>Oublié : ' + listFr(missed) + '.</li>');
+      }
+      if (miscolored.length) {
+        lines.push('<li>Mauvaise couleur : ' + listFr(miscolored) + '.</li>');
+      }
+      if (!lines.length) {
+        lines.push('<li>Rien de surligné dans cette couleur pour l’instant.</li>');
+      }
+      html += '<ul>' + lines.join('') + '</ul>';
+      html += '<p class="a-why">' + why[cat] + '</p>';
+    });
+
+    // Distracteurs colories (mots qui n'appartiennent a aucune categorie).
+    var stray = [];
+    tokens.forEach(function(tok){
+      var expected = tok.getAttribute('data-cat');
+      var marked = tok.getAttribute('data-marked') || '';
+      if (expected === '' && marked !== '') {
+        stray.push(prettyOf(tok));
+      }
+    });
+    if (stray.length) {
+      allGood = false;
+      html += '<p class="a-fb-cat">A revoir</p>';
+      html += '<ul><li>' + listFr(stray) + ' : pas un élément clé de la consigne.</li></ul>';
+    }
+
+    var intro;
+    if (allGood) {
+      intro = '<p>Tout est exact. Tu as bien repéré ce qu’il faut faire, le cadre à respecter et le genre demandé.</p>';
+      setFeedback(feedback, 'ok', intro + html);
+    } else {
+      intro = '<p>Bon début. Regarde le détail par couleur ci-dessous, puis corrige.</p>';
+      setFeedback(feedback, 'partial', intro + html);
+    }
+  }
+
+  function clearAll() {
+    tokens.forEach(function(tok){ paint(tok, ''); });
+    selectPen(null);                                  // remet activePen a null
+    Object.keys(pens).forEach(function(key){ pens[key].setAttribute('aria-pressed', 'false'); });
+    clearFeedback(feedback);
+  }
+
+  root.querySelector('#a-check').addEventListener('click', check);
+  root.querySelector('#a-clear').addEventListener('click', clearAll);
+});
+
+  /* ===== Composant B ===== */
+whenReady(function(){
+  var root = document.getElementById('cmp-b');
+  if (!root) { return; }
+  var feedback = root.querySelector('#b-feedback');
+  var scoreVal = root.querySelector('#b-score-val');
+  var items = Array.prototype.slice.call(root.querySelectorAll('.b-item'));
+  var total = items.length;
+  var score = 0;
+  var answered = 0;
+
+  function summarise() {
+    if (score === total) {
+      setFeedback(feedback, 'ok', 'Sans faute, ' + score + ' / ' + total + '. Tu repères bien le verbe de consigne : « raconte » ou « imagine » appellent une action, « décris » ou « fais le portrait » appellent une description.');
+    } else if (score === 0) {
+      setFeedback(feedback, 'err', score + ' / ' + total + '. Reprends le verbe de chaque consigne : s\'il invite à montrer un lieu ou une personne, c\'est descriptif ; s\'il invite à faire avancer une action dans le temps, c\'est narratif.');
+    } else if (score >= total / 2) {
+      setFeedback(feedback, 'partial', score + ' / ' + total + '. Bonne base. Pour les erreurs, demande-toi si la consigne te fait peindre un tableau (descriptif) ou avancer dans le temps (narratif).');
+    } else {
+      setFeedback(feedback, 'partial', score + ' / ' + total + '. Encore un effort. Le mot clé est dans le verbe : « décris » et « portrait » peignent, « raconte » et « rencontre » racontent une action.');
+    }
+  }
+
+  items.forEach(function(item) {
+    var answer = item.getAttribute('data-answer');
+    var explainText = item.getAttribute('data-explain');
+    var explainEl = item.querySelector('.b-explain');
+    var buttons = Array.prototype.slice.call(item.querySelectorAll('.b-btn'));
+
+    buttons.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if (item.classList.contains('is-locked')) { return; }
+        var choice = btn.getAttribute('data-choice');
+        var correct = (choice === answer);
+        item.classList.add('is-locked');
+        item.classList.add(correct ? 'is-correct' : 'is-wrong');
+        btn.classList.add('is-chosen');
+        btn.setAttribute('aria-pressed', 'true');
+        buttons.forEach(function(b) { b.disabled = true; });
+
+        var mark = correct ? '✓' : '✗';
+        var lead = correct
+          ? '<span class="b-mark">' + mark + ' Exact.</span> '
+          : '<span class="b-mark">' + mark + ' La bonne réponse était « ' + (answer === 'narratif' ? 'Narratif' : 'Descriptif') + ' ».</span> ';
+        explainEl.innerHTML = lead + explainText;
+        explainEl.hidden = false;
+
+        if (correct) { score += 1; }
+        scoreVal.textContent = String(score);
+        answered += 1;
+        if (answered === total) { summarise(); }
+      });
+    });
+  });
+});
+
+  /* ===== Composant C ===== */
+whenReady(function(){
+  var root = document.getElementById('cmp-c');
+  if (!root) { return; }
+
+  var timerEl = root.querySelector('#c-timer');
+  var startBtn = root.querySelector('#c-start');
+  var stopBtn = root.querySelector('#c-stop');
+  var resetBtn = root.querySelector('#c-reset');
+  var input = root.querySelector('#c-input');
+  var addBtn = root.querySelector('#c-add');
+  var countEl = root.querySelector('#c-count');
+  var chipsEl = root.querySelector('#c-chips');
+  var bankEl = root.querySelector('#c-bank');
+  var feedbackEl = root.querySelector('#c-feedback');
+
+  var TOTAL = 120;
+  var remaining = TOTAL;
+  var intervalId = null;
+  var words = [];
+
+  var bank = {
+    noms: ['la peur', "l'angoisse", 'la terreur', 'la panique', 'un frisson', "l'effroi"],
+    verbes: ['trembler', 'sursauter', 'frémir', 'se figer', 'blêmir'],
+    adjectifs: ['glaçant', 'terrifiant', 'oppressant', 'blafard', 'menaçant']
+  };
+  var listIds = { noms: '#c-bank-noms', verbes: '#c-bank-verbes', adjectifs: '#c-bank-adjectifs' };
+
+  function normalize(value) {
+    var v = (value || '').toString().toLowerCase().trim();
+    v = v.normalize('NFD').replace(/[̀-ͯ]/g, '');
+    v = v.replace(/^(l['’]|d['’]|c['’])/, '');
+    v = v.replace(/^(la|le|les|un|une|des|se|s['’])\s+/, '');
+    v = v.replace(/[.,;:!?'"’]/g, '').trim();
+    return v;
+  }
+
+  function stripPlural(value) {
+    return value.replace(/s$/, '');
+  }
+
+  function sameWord(a, b) {
+    var na = normalize(a);
+    var nb = normalize(b);
+    if (na === nb) { return true; }
+    return stripPlural(na) === stripPlural(nb);
+  }
+
+  function buildBankKeys() {
+    var map = {};
+    Object.keys(bank).forEach(function(cat){
+      bank[cat].forEach(function(entry){
+        map[normalize(entry)] = cat;
+      });
+    });
+    return map;
+  }
+  var bankKeys = buildBankKeys();
+
+  function pad(n) {
+    return (n < 10 ? '0' : '') + n;
+  }
+
+  function renderTimer() {
+    var m = Math.floor(remaining / 60);
+    var s = remaining % 60;
+    timerEl.textContent = pad(m) + ':' + pad(s);
+    timerEl.setAttribute('data-urgent', (remaining <= 20 && remaining > 0) ? 'true' : 'false');
+  }
+
+  function isRunning() {
+    return intervalId !== null;
+  }
+
+  function setInputEnabled(on) {
+    input.disabled = !on;
+    addBtn.disabled = !on;
+  }
+
+  function clearTimer() {
+    if (intervalId !== null) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+  }
+
+  function startTimer() {
+    if (isRunning() || remaining <= 0) { return; }
+    clearFeedback(feedbackEl);
+    setInputEnabled(true);
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    input.focus();
+    intervalId = setInterval(function(){
+      remaining -= 1;
+      if (remaining <= 0) {
+        remaining = 0;
+        renderTimer();
+        finish();
+        return;
+      }
+      renderTimer();
+    }, 1000);
+  }
+
+  function finish() {
+    clearTimer();
+    setInputEnabled(false);
+    startBtn.disabled = true;
+    stopBtn.disabled = true;
+    timerEl.setAttribute('data-urgent', 'false');
+    revealBank();
+    giveFeedback();
+  }
+
+  function reset() {
+    clearTimer();
+    remaining = TOTAL;
+    words = [];
+    renderTimer();
+    renderChips();
+    bankEl.hidden = true;
+    clearFeedback(feedbackEl);
+    setInputEnabled(false);
+    input.value = '';
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+  }
+
+  function alreadyHas(value) {
+    var n = normalize(value);
+    return words.some(function(w){ return normalize(w) === n; });
+  }
+
+  function addWord() {
+    var raw = input.value.trim();
+    if (!raw) { input.value = ''; return; }
+    if (alreadyHas(raw)) {
+      input.value = '';
+      input.focus();
+      return;
+    }
+    words.push(raw);
+    input.value = '';
+    renderChips();
+    input.focus();
+  }
+
+  function removeWord(index) {
+    words.splice(index, 1);
+    renderChips();
+  }
+
+  function renderChips() {
+    chipsEl.textContent = '';
+    words.forEach(function(word, index){
+      var li = document.createElement('li');
+      li.className = 'chip c-chip';
+
+      var label = document.createElement('span');
+      label.className = 'c-chip-label';
+      label.textContent = word;
+      li.appendChild(label);
+
+      if (!input.disabled) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'c-chip-remove';
+        btn.setAttribute('aria-label', 'Retirer ' + word);
+        btn.textContent = '×';
+        btn.addEventListener('click', function(){ removeWord(index); });
+        li.appendChild(btn);
+      }
+      chipsEl.appendChild(li);
+    });
+    countEl.textContent = 'Mots trouvés : ' + words.length;
+  }
+
+  function revealBank() {
+    Object.keys(bank).forEach(function(cat){
+      var listEl = root.querySelector(listIds[cat]);
+      listEl.textContent = '';
+      bank[cat].forEach(function(entry){
+        var li = document.createElement('li');
+        li.className = 'c-bank-word';
+        li.textContent = entry;
+        var found = words.some(function(w){ return sameWord(w, entry); });
+        li.setAttribute('data-found', found ? 'true' : 'false');
+        listEl.appendChild(li);
+      });
+    });
+    bankEl.hidden = false;
+  }
+
+  function giveFeedback() {
+    var matchedEntries = [];
+    var matchedByCat = { noms: 0, verbes: 0, adjectifs: 0 };
+    var usedEntries = {};
+
+    words.forEach(function(w){
+      Object.keys(bank).forEach(function(cat){
+        bank[cat].forEach(function(entry){
+          if (usedEntries[entry]) { return; }
+          if (sameWord(w, entry)) {
+            usedEntries[entry] = true;
+            matchedEntries.push(entry);
+            matchedByCat[cat] += 1;
+          }
+        });
+      });
+    });
+
+    var n = matchedEntries.length;
+
+    if (n === 0) {
+      if (words.length === 0) {
+        setFeedback(feedbackEl, 'info', 'Tu n’as encore noté aucun mot. Lance le chronomètre et commence par un mot simple, par exemple « la peur » ou « trembler ».');
+      } else {
+        setFeedback(feedbackEl, 'partial', 'Aucun de tes mots ne figure dans la banque, mais ce n’est pas grave. Regarde la liste et retiens un exemple facile comme « un frisson » ou « terrifiant ».');
+      }
+      return;
+    }
+
+    var sample = matchedEntries.slice(0, 3);
+    var sampleText = sample.map(function(e){ return '« ' + e + ' »'; }).join(', ');
+    var status = n >= 5 ? 'ok' : 'partial';
+    var msg = 'Bravo, tu as trouvé ' + n + ' mot' + (n > 1 ? 's' : '') + ' de la banque, dont ' + sampleText + '.';
+
+    var weakest = ['adjectifs', 'verbes', 'noms'].reduce(function(acc, cat){
+      return matchedByCat[cat] < matchedByCat[acc] ? cat : acc;
+    }, 'noms');
+
+    var nudges = {
+      noms: 'Pense aussi à des noms comme « l’angoisse » ou « l’effroi ».',
+      verbes: 'Pense aussi aux verbes comme « blêmir » ou « se figer ».',
+      adjectifs: 'Pense aussi aux adjectifs comme « blafard » ou « oppressant ».'
+    };
+
+    if (matchedByCat[weakest] === 0) {
+      msg += ' ' + nudges[weakest];
+    } else if (n < 8) {
+      msg += ' Continue, il reste des mots à découvrir. ' + nudges[weakest];
+    }
+
+    setFeedback(feedbackEl, status, msg);
+  }
+
+  startBtn.addEventListener('click', startTimer);
+  stopBtn.addEventListener('click', finish);
+  resetBtn.addEventListener('click', reset);
+  addBtn.addEventListener('click', addWord);
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addWord();
+    }
+  });
+
+  renderTimer();
+  renderChips();
+});
+
+  /* ===== Composant D ===== */
+whenReady(function(){
+  var root = document.getElementById('cmp-d');
+  if (!root) { return; }
+  var text = root.querySelector('#d-text');
+  var showBtn = root.querySelector('#d-show');
+  var modelBox = root.querySelector('#d-model-box');
+  var selfBtns = Array.prototype.slice.call(root.querySelectorAll('.d-self-btn'));
+  var checkBtn = root.querySelector('#d-check');
+  var resetBtn = root.querySelector('#d-reset');
+  var feedback = root.querySelector('#d-feedback');
+  var selfChoice = '';
+
+  var keywords = [
+    { label: 'Léa', test: 'lea' },
+    { label: 'maison', test: 'maison' },
+    { label: 'tranquille', test: 'tranquille' },
+    { label: 'porte', test: 'porte' },
+    { label: 'après-midi', test: 'apres-midi' }
+  ];
+
+  function normalise(value) {
+    var lower = value.toLowerCase();
+    if (lower.normalize) { lower = lower.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+    return lower;
+  }
+
+  function listFound(found) {
+    var labels = found.map(function(item) { return '« ' + item.label + ' »'; });
+    if (labels.length === 1) { return labels[0]; }
+    return labels.slice(0, -1).join(', ') + ' et ' + labels[labels.length - 1];
+  }
+
+  showBtn.addEventListener('click', function() {
+    var open = modelBox.hidden;
+    modelBox.hidden = !open;
+    showBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    showBtn.textContent = open ? 'Masquer le modèle' : 'Voir un modèle';
+  });
+
+  selfBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      selfChoice = btn.getAttribute('data-self');
+      selfBtns.forEach(function(b) {
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+      });
+    });
+  });
+
+  checkBtn.addEventListener('click', function() {
+    var raw = text.value.trim();
+    if (!raw) {
+      setFeedback(feedback, 'info', 'Ta conclusion est encore vide. Écris environ trois lignes pour terminer l\'histoire de Léa, puis vérifie ta boucle.');
+      return;
+    }
+    var hay = normalise(raw);
+    var found = keywords.filter(function(item) { return hay.indexOf(item.test) !== -1; });
+
+    if (found.length > 0) {
+      var msg = '<span class="d-mark">Bien vu :</span> tu reprends ' + listFound(found) + ', la boucle est là.';
+      if (selfChoice === 'non') {
+        msg += ' Tu as répondu « Non », mais ces mots du début reviennent bien dans ta fin : ta boucle fonctionne.';
+      } else if (selfChoice === 'oui') {
+        msg += ' Ton « Oui » est juste : la fin répond clairement au début.';
+      } else {
+        msg += ' Réponds aussi à la question « Oui / Non » pour confirmer ton intention.';
+      }
+      setFeedback(feedback, 'ok', msg);
+      return;
+    }
+
+    var noEcho = '<span class="d-mark">Aucun mot du début ne revient pour l\'instant.</span> Reprends un mot du début, par exemple « maison » ou « tranquille », pour que la fin réponde au début.';
+    if (selfChoice === 'oui') {
+      noEcho += ' Tu pensais avoir bouclé, mais je ne retrouve pas encore ces mots : ajoute-en un de l\'introduction.';
+    } else if (selfChoice === 'non') {
+      noEcho += ' Tu l\'as bien vu en répondant « Non » : il manque ce lien avec l\'introduction.';
+    }
+    setFeedback(feedback, 'partial', noEcho);
+  });
+
+  resetBtn.addEventListener('click', function() {
+    text.value = '';
+    selfChoice = '';
+    selfBtns.forEach(function(b) { b.setAttribute('aria-pressed', 'false'); });
+    clearFeedback(feedback);
+    text.focus();
+  });
+});
+
+  /* ===== Composant E ===== */
+whenReady(function(){
+  var root = document.getElementById('cmp-e');
+  if (!root) { return; }
+  var feedback = root.querySelector('#e-feedback');
+  var tabs = Array.prototype.slice.call(root.querySelectorAll('.e-tab'));
+  var versions = Array.prototype.slice.call(root.querySelectorAll('.e-version'));
+  var wideQuery = window.matchMedia('(min-width: 720px)');
+
+  function showView(view) {
+    if (wideQuery.matches) { return; }
+    versions.forEach(function(v) { v.hidden = (v.getAttribute('data-view') !== view); });
+  }
+
+  function syncWidth() {
+    if (wideQuery.matches) {
+      versions.forEach(function(v) { v.hidden = false; });
+    } else {
+      var active = tabs.filter(function(t) { return t.getAttribute('aria-pressed') === 'true'; })[0];
+      showView(active ? active.getAttribute('data-view') : 'compact');
+    }
+  }
+
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) {
+        var on = (t === tab);
+        t.setAttribute('aria-pressed', on ? 'true' : 'false');
+        t.classList.toggle('btn--primary', on);
+        t.classList.toggle('btn--ghost', !on);
+      });
+      showView(tab.getAttribute('data-view'));
+    });
+  });
+
+  if (wideQuery.addEventListener) {
+    wideQuery.addEventListener('change', syncWidth);
+  } else if (wideQuery.addListener) {
+    wideQuery.addListener(syncWidth);
+  }
+  syncWidth();
+
+  var picks = Array.prototype.slice.call(root.querySelectorAll('.e-pick-btn'));
+  picks.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var pick = btn.getAttribute('data-pick');
+      if (pick === 'aeree') {
+        setFeedback(feedback, 'ok', 'Bon choix. La version aérée se lit plus vite parce que chaque alinéa annonce un changement d\'idée. Ici les trois retraits marquent : les préparatifs (« Le matin, Tom se leva tôt »), le décor (« Dehors, le brouillard »), puis l\'événement (« Soudain, un bruit sourd »). L\'œil sait où chaque idée commence.');
+      } else {
+        setFeedback(feedback, 'partial', 'Ce choix se comprend : le bloc compact paraît plus court. Mais il fatigue le lecteur et cache la structure, car tout se suit sans pause. La version aérée sépare les trois idées par un alinéa : les préparatifs, le décor, puis l\'événement (« Soudain, un bruit sourd »). On repère ainsi chaque étape d\'un coup d\'œil.');
+      }
+    });
+  });
+});
+
+  /* ===== Composant F ===== */
+whenReady(function(){
+  var root = document.getElementById('cmp-f');
+  if (!root) { return; }
+  var feedback = root.querySelector('#f-feedback');
+  var lensEl = root.querySelector('#f-lens');
+  var toks = Array.prototype.slice.call(root.querySelectorAll('.f-tok'));
+  var passBtns = Array.prototype.slice.call(root.querySelectorAll('.f-pass'));
+  var checkBtn = root.querySelector('#f-check');
+  var resetBtn = root.querySelector('#f-reset');
+  var current = '1';
+
+  var lensText = {
+    '1': 'Passage 1, le sens : repère les verbes au présent qui ne vont pas avec « Hier ».',
+    '2': 'Passage 2, le temps : repère les verbes mal conjugués ou mal accordés.',
+    '3': 'Passage 3, l\'orthographe : repère les accords et les pluriels fautifs.'
+  };
+
+  // Marques par passage, indexées par data-word. marks['1'] = { mot: true, ... }
+  var marks = { '1': {}, '2': {}, '3': {} };
+
+  // Texte de correction par mot, utilisé dans les passages 2 et 3.
+  var corrections = {
+    'joue': 'joue devient jouent (les enfants jouent)',
+    'décidés': 'ont décidés devient ont décidé (le participe passé employé avec « avoir » ne s\'accorde pas avec le sujet)',
+    'rentre': 'rentre devient rentrent (ils rentrent)',
+    'mouillé': 'mouillé devient mouillés (ils sont tout mouillés, accord au pluriel avec « ils »)'
+  };
+
+  // Libellé d'un mot tel que l'élève le voit à l'écran.
+  function labelOf(word) {
+    var t = toks.filter(function(x){ return x.getAttribute('data-word') === word; })[0];
+    return t ? t.textContent.replace(/[.,]$/, '') : word;
+  }
+
+  function targetsFor(pass) {
+    return toks.filter(function(t){ return t.getAttribute('data-p' + pass) === '1'; })
+               .map(function(t){ return t.getAttribute('data-word'); });
+  }
+
+  function renderMarks() {
+    var passMarks = marks[current];
+    toks.forEach(function(t) {
+      var w = t.getAttribute('data-word');
+      t.classList.toggle('is-marked', passMarks[w] === true);
+      t.setAttribute('aria-pressed', passMarks[w] === true ? 'true' : 'false');
+    });
+  }
+
+  function setPass(pass) {
+    current = pass;
+    passBtns.forEach(function(b) {
+      var on = (b.getAttribute('data-pass') === pass);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.classList.toggle('btn--primary', on);
+      b.classList.toggle('btn--ghost', !on);
+    });
+    lensEl.textContent = lensText[pass];
+    clearFeedback(feedback);
+    renderMarks();
+  }
+
+  function joinList(arr) {
+    if (arr.length === 1) { return arr[0]; }
+    return arr.slice(0, -1).join(', ') + ' et ' + arr[arr.length - 1];
+  }
+
+  // Construit le retour précis pour le passage actif.
+  function buildFeedback() {
+    var passMarks = marks[current];
+    var targets = targetsFor(current);
+    var clicked = Object.keys(passMarks).filter(function(w){ return passMarks[w] === true; });
+
+    var found = [];
+    var missed = [];
+    var falseClicks = [];
+
+    targets.forEach(function(w) {
+      if (passMarks[w] === true) { found.push(w); } else { missed.push(w); }
+    });
+    clicked.forEach(function(w) {
+      if (targets.indexOf(w) === -1) { falseClicks.push(w); }
+    });
+
+    var perfect = (missed.length === 0 && falseClicks.length === 0);
+    var parts = [];
+
+    if (current === '1') {
+      if (found.length) {
+        parts.push('Tu as repéré : ' + joinList(found.map(function(w){ return '« ' + labelOf(w) + ' »'; })) + '.');
+      }
+      if (missed.length) {
+        parts.push('Il manque : ' + joinList(missed.map(function(w){ return '« ' + labelOf(w) + ' »'; })) + '.');
+      }
+      parts.push('« Hier » annonce le passé, mais ces verbes sont au présent. Pour que le récit ait du sens, tout doit passer au passé.');
+    } else if (current === '2') {
+      if (found.length) {
+        parts.push('Corrige : ' + joinList(found.map(function(w){ return corrections[w]; })) + '.');
+      }
+      if (missed.length) {
+        parts.push('Tu as oublié : ' + joinList(missed.map(function(w){ return corrections[w]; })) + '.');
+      }
+    } else {
+      if (found.length) {
+        parts.push('Corrige : ' + corrections['mouillé'] + '.');
+      }
+      if (missed.length) {
+        parts.push('Tu as oublié « mouillé » : ' + corrections['mouillé'] + '.');
+      }
+    }
+
+    if (falseClicks.length) {
+      parts.push(joinList(falseClicks.map(function(w){ return '« ' + labelOf(w) +' » est correct, ce n\'est pas une erreur ici'; })) + '.');
+    }
+
+    if (perfect && current !== '1') {
+      parts.unshift('Passage réussi.');
+    } else if (perfect && current === '1') {
+      parts.unshift('Passage réussi, tu as trouvé les quatre verbes.');
+    }
+
+    return { html: parts.join(' '), status: perfect ? 'ok' : 'partial' };
+  }
+
+  toks.forEach(function(t) {
+    t.addEventListener('click', function() {
+      var w = t.getAttribute('data-word');
+      var passMarks = marks[current];
+      if (passMarks[w] === true) { delete passMarks[w]; } else { passMarks[w] = true; }
+      t.classList.toggle('is-marked', passMarks[w] === true);
+      t.setAttribute('aria-pressed', passMarks[w] === true ? 'true' : 'false');
+    });
+  });
+
+  passBtns.forEach(function(b) {
+    b.addEventListener('click', function() { setPass(b.getAttribute('data-pass')); });
+  });
+
+  checkBtn.addEventListener('click', function() {
+    var res = buildFeedback();
+    setFeedback(feedback, res.status, res.html);
+  });
+
+  resetBtn.addEventListener('click', function() {
+    marks = { '1': {}, '2': {}, '3': {} };
+    clearFeedback(feedback);
+    renderMarks();
+  });
+
+  setPass('1');
+});
+
+  /* ===== Composant G ===== */
+whenReady(function(){
+  var root = document.getElementById('cmp-g');
+  if (!root) { return; }
+  var sentence = root.querySelector('#g-sentence');
+  var note = root.querySelector('#g-note');
+  var steps = Array.prototype.slice.call(root.querySelectorAll('.g-step'));
+  var resetBtn = root.querySelector('#g-reset');
+  var feedback = root.querySelector('#g-feedback');
+
+  var states = [
+    {
+      html: 'Il a peur.',
+      note: 'Phrase de départ. Elle dit la peur, mais ne la fait pas ressentir.'
+    },
+    {
+      html: '<mark class="g-add">Soudain,</mark> il a peur.',
+      note: 'Tu situes le moment : « Soudain » crée la surprise.'
+    },
+    {
+      html: 'Soudain, <mark class="g-add">dans l\'obscurité,</mark> il a peur.',
+      note: 'Tu ajoutes le lieu : « dans l\'obscurité » installe l\'ambiance.'
+    },
+    {
+      html: 'Soudain, dans l\'obscurité, <mark class="g-add">un frisson glaçant le parcourut.</mark>',
+      note: 'Tu remplaces « avoir peur » par une sensation concrète : « un frisson glaçant ».'
+    },
+    {
+      html: 'Soudain, dans l\'obscurité, un frisson glaçant parcourut <mark class="g-add">l\'échine du jeune garçon.</mark>',
+      note: 'Tu précises le corps et la personne : « l\'échine du jeune garçon ».'
+    },
+    {
+      html: 'Soudain, dans l\'obscurité, un frisson glaçant parcourut l\'échine du jeune garçon <mark class="g-add">dont le cœur se mit à battre la chamade.</mark>',
+      note: 'Tu ajoutes une image forte : « le cœur se mit à battre la chamade ».'
+    }
+  ];
+
+  var current = 0;
+
+  function render() {
+    sentence.innerHTML = states[current].html;
+    note.textContent = states[current].note;
+    steps.forEach(function(btn) {
+      var n = parseInt(btn.getAttribute('data-step'), 10);
+      btn.disabled = (n !== current + 1);
+      if (n <= current) {
+        btn.classList.add('is-done');
+      } else {
+        btn.classList.remove('is-done');
+      }
+    });
+    if (current === states.length - 1) {
+      setFeedback(feedback, 'ok', 'La peur n\'est plus seulement dite, elle est montrée : un moment, un lieu, une sensation dans le corps et une image du cœur affolé. La phrase est devenue vivante et le lecteur ressent la scène.');
+    } else {
+      clearFeedback(feedback);
+    }
+  }
+
+  steps.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var n = parseInt(btn.getAttribute('data-step'), 10);
+      if (n !== current + 1) { return; }
+      current = n;
+      render();
+    });
+  });
+
+  resetBtn.addEventListener('click', function() {
+    current = 0;
+    render();
+  });
+});
+
+  /* ===== Composant H ===== */
+whenReady(function(){
+  var root = document.getElementById('cmp-h');
+  if (!root) { return; }
+  var feedback = root.querySelector('#h-feedback');
+  var scoreVal = root.querySelector('#h-score-val');
+  var resetBtn = root.querySelector('#h-reset');
+  var items = Array.prototype.slice.call(root.querySelectorAll('.h-item'));
+  var total = items.length;
+  var score = 0;
+  var answered = 0;
+
+  function shuffle(nodes) {
+    for (var i = nodes.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = nodes[i];
+      nodes[i] = nodes[j];
+      nodes[j] = tmp;
+    }
+    return nodes;
+  }
+
+  function summarise() {
+    var msg, status;
+    if (score === total) {
+      status = 'ok';
+      msg = score + ' / ' + total + '. Méthode maîtrisée, bravo !';
+    } else if (score >= 4) {
+      status = 'ok';
+      msg = score + ' / ' + total + '. Très bien, revois juste un ou deux points.';
+    } else if (score >= 2) {
+      status = 'partial';
+      msg = score + ' / ' + total + '. Tu progresses, reprends les étapes clés.';
+    } else {
+      status = 'err';
+      msg = score + ' / ' + total + '. Pas de panique, relis la méthode et réessaie.';
+    }
+    setFeedback(feedback, status, msg);
+  }
+
+  function bindItem(item) {
+    var pourquoiText = item.getAttribute('data-pourquoi');
+    var pourquoiEl = item.querySelector('.h-pourquoi');
+    var optionsBox = item.querySelector('.h-options');
+    var options = Array.prototype.slice.call(item.querySelectorAll('.h-opt'));
+
+    shuffle(options).forEach(function(opt) { optionsBox.appendChild(opt); });
+
+    options.forEach(function(opt) {
+      opt.addEventListener('click', function() {
+        if (item.classList.contains('is-locked')) { return; }
+        var correct = (opt.getAttribute('data-correct') === 'true');
+        item.classList.add('is-locked');
+        options.forEach(function(b) { b.disabled = true; });
+
+        opt.classList.add(correct ? 'h-correct' : 'h-wrong');
+        var mark = document.createElement('span');
+        mark.className = 'h-mark';
+        mark.textContent = correct ? '✓' : '✗';
+        opt.insertBefore(mark, opt.firstChild);
+
+        if (!correct) {
+          options.forEach(function(b) {
+            if (b.getAttribute('data-correct') === 'true') {
+              b.classList.add('h-correct');
+              var ok = document.createElement('span');
+              ok.className = 'h-mark';
+              ok.textContent = '✓';
+              b.insertBefore(ok, b.firstChild);
+            }
+          });
+        }
+
+        var lead = correct ? '✓ Exact. ' : '✗ La bonne réponse est en vert. ';
+        pourquoiEl.innerHTML = '<span class="h-lead">' + lead + '</span>' + pourquoiText;
+        pourquoiEl.hidden = false;
+
+        if (correct) { score += 1; }
+        scoreVal.textContent = String(score);
+        answered += 1;
+        if (answered === total) {
+          summarise();
+          resetBtn.hidden = false;
+        }
+      });
+    });
+  }
+
+  function resetItem(item) {
+    item.classList.remove('is-locked');
+    var pourquoiEl = item.querySelector('.h-pourquoi');
+    pourquoiEl.hidden = true;
+    pourquoiEl.textContent = '';
+    var optionsBox = item.querySelector('.h-options');
+    var options = Array.prototype.slice.call(item.querySelectorAll('.h-opt'));
+    options.forEach(function(opt) {
+      opt.disabled = false;
+      opt.classList.remove('h-correct', 'h-wrong');
+      var mark = opt.querySelector('.h-mark');
+      if (mark) { opt.removeChild(mark); }
+    });
+    shuffle(options).forEach(function(opt) { optionsBox.appendChild(opt); });
+  }
+
+  function reset() {
+    score = 0;
+    answered = 0;
+    scoreVal.textContent = '0';
+    clearFeedback(feedback);
+    items.forEach(resetItem);
+    resetBtn.hidden = true;
+    var firstOpt = items[0].querySelector('.h-opt');
+    if (firstOpt) { firstOpt.focus({ preventScroll: true }); }
+    items[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  items.forEach(bindItem);
+  resetBtn.addEventListener('click', reset);
+});
+
+  /* ----- Deck navigation ----- */
+  function initDeck(){
+    var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+    var total = slides.length;
+    var current = 0;
+    var fill = document.getElementById('progress-fill');
+    var counter = document.getElementById('counter');
+    var btnPrev = document.getElementById('btn-prev');
+    var btnNext = document.getElementById('btn-next');
+    var dotsWrap = document.getElementById('dots');
+    var progressEl = document.querySelector('.progress');
+    var dots = [];
+
+    for(var i = 0; i < total; i++){
+      var d = document.createElement('button');
+      d.type = 'button';
+      d.className = 'dot';
+      d.setAttribute('aria-label', 'Aller à la diapositive ' + (i + 1));
+      (function(idx){ d.addEventListener('click', function(){ goTo(idx); }); })(i);
+      dotsWrap.appendChild(d);
+      dots.push(d);
+    }
+
+    function render(){
+      for(var i = 0; i < total; i++){
+        var active = (i === current);
+        slides[i].classList.toggle('is-active', active);
+        slides[i].setAttribute('aria-hidden', active ? 'false' : 'true');
+        dots[i].classList.toggle('is-active', active);
+      }
+      var pct = ((current + 1) / total) * 100;
+      fill.style.width = pct + '%';
+      counter.textContent = (current + 1) + ' / ' + total;
+      if(progressEl){ progressEl.setAttribute('aria-valuenow', String(current + 1)); }
+      btnPrev.disabled = (current === 0);
+      btnNext.disabled = (current === total - 1);
+    }
+
+    function goTo(i, opts){
+      var n = Math.max(0, Math.min(total - 1, i));
+      if(n === current){ return; }
+      current = n;
+      render();
+      var el = slides[current];
+      el.scrollTop = 0;
+      if(!(opts && opts.noFocus)){ el.focus({ preventScroll: true }); }
+    }
+    function next(){ goTo(current + 1); }
+    function prev(){ goTo(current - 1); }
+
+    btnPrev.addEventListener('click', prev);
+    btnNext.addEventListener('click', next);
+
+    document.addEventListener('keydown', function(e){
+      var t = e.target;
+      if(t && t.closest && t.closest('input, textarea, [contenteditable="true"]')){ return; }
+      if(e.altKey || e.ctrlKey || e.metaKey){ return; }
+      if(e.key === 'ArrowRight' || e.key === 'PageDown'){ e.preventDefault(); next(); }
+      else if(e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); prev(); }
+      else if(e.key === 'Home'){ e.preventDefault(); goTo(0); }
+      else if(e.key === 'End'){ e.preventDefault(); goTo(total - 1); }
+    });
+
+    Array.prototype.slice.call(document.querySelectorAll('[data-goto]')).forEach(function(b){
+      b.addEventListener('click', function(){ goTo(parseInt(b.getAttribute('data-goto'), 10) || 0); });
+    });
+
+    window.Deck = { goTo: goTo, next: next, prev: prev, total: total };
+    render();
+  }
+
+  /* ----- Boot ----- */
+  function boot(){
+    initDeck();
+    for(var i = 0; i < __ready.length; i++){
+      try { __ready[i](); }
+      catch(err){ if(window.console){ console.error('Erreur d\'initialisation d\'un composant :', err); } }
+    }
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body>
+</html>

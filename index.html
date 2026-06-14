@@ -92,9 +92,9 @@ strong{ color:var(--primary); }
   overflow-y:auto;
   padding:clamp(1.1rem,3.2vw,2.6rem);
   opacity:0; visibility:hidden; transform:translateY(14px); pointer-events:none;
-  transition:opacity .45s ease, transform .45s ease;
+  transition:opacity .45s ease, transform .45s ease, visibility 0s linear .45s;
 }
-.slide.is-active{ opacity:1; visibility:visible; transform:none; pointer-events:auto; }
+.slide.is-active{ opacity:1; visibility:visible; transform:none; pointer-events:auto; transition:opacity .45s ease, transform .45s ease, visibility 0s; }
 .slide__inner{ width:100%; max-width:var(--maxw); margin-left:auto; margin-right:auto; padding-bottom:1.5rem; }
 .slide--center .slide__inner{
   margin-top:auto; margin-bottom:auto;
@@ -233,7 +233,7 @@ strong{ color:var(--primary); }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
     animation-duration:.001ms !important; animation-iteration-count:1 !important;
-    transition-duration:.001ms !important; scroll-behavior:auto !important;
+    transition-duration:.001ms !important; transition-delay:0s !important; scroll-behavior:auto !important;
   }
   .slide{ transform:none !important; }
 }
@@ -1122,6 +1122,17 @@ strong{ color:var(--primary); }
     el.innerHTML = '';
     el.hidden = true;
   };
+  // Joint une liste en français : « a », « b » et « c ».
+  window.joinFr = function(arr){
+    if(arr.length === 0){ return ''; }
+    if(arr.length === 1){ return arr[0]; }
+    return arr.slice(0, -1).join(', ') + ' et ' + arr[arr.length - 1];
+  };
+  // Retire les accents (diacritiques) ; sans risque si String.normalize manque.
+  window.stripAccents = function(value){
+    var s = String(value);
+    return s.normalize ? s.normalize('NFD').replace(/[̀-ͯ]/g, '') : s;
+  };
 
   /* ----- Interactive components register here (injected at build) ----- */
     /* ===== Composant A ===== */
@@ -1149,32 +1160,8 @@ whenReady(function(){
     genre: '« la suite de ce récit » annonce le type de texte attendu : un récit, donc un texte narratif.'
   };
 
-  // Texte "joli" a afficher pour chaque token, avec accents.
-  var pretty = {
-    'Redige': 'Rédige',
-    'la suite de ce recit': 'la suite de ce récit',
-    'ton personnage principal': 'ton personnage principal',
-    'une foret': 'une forêt',
-    'a la tombee de la nuit': 'à la tombée de la nuit',
-    'une cabane abandonnee': 'une cabane abandonnée',
-    'Raconte': 'Raconte',
-    'decouvre': 'découvre',
-    'a l’interieur': 'à l’intérieur',
-    'a l\'interieur': 'à l’intérieur',
-    '(Environ 20 lignes.)': '(Environ 20 lignes.)'
-  };
-
   function prettyOf(tok) {
-    var raw = tok.textContent.replace(/\s+/g, ' ').trim();
-    return pretty[raw] || raw;
-  }
-
-  // categorie actuellement posee sur un token : '' si aucune.
-  function currentCat(tok) {
-    if (tok.classList.contains('a-on-action')) { return 'action'; }
-    if (tok.classList.contains('a-on-constraint')) { return 'constraint'; }
-    if (tok.classList.contains('a-on-genre')) { return 'genre'; }
-    return '';
+    return tok.textContent.replace(/\s+/g, ' ').trim();
   }
 
   function paint(tok, cat) {
@@ -1182,8 +1169,12 @@ whenReady(function(){
     if (cat) {
       tok.classList.add('a-on-' + cat);
       tok.setAttribute('data-marked', cat);
+      tok.setAttribute('aria-pressed', 'true');
+      tok.setAttribute('aria-label', prettyOf(tok) + ', surligné : ' + catLabel[cat]);
     } else {
       tok.removeAttribute('data-marked');
+      tok.setAttribute('aria-pressed', 'false');
+      tok.removeAttribute('aria-label');
     }
   }
 
@@ -1199,12 +1190,13 @@ whenReady(function(){
   });
 
   tokens.forEach(function(tok){
+    tok.setAttribute('aria-pressed', 'false');
     tok.addEventListener('click', function(){
       if (!activePen) {
         setFeedback(feedback, 'info', 'Choisis d’abord un surligneur (Actions, Contraintes ou Genre), puis clique sur un mot.');
         return;
       }
-      var now = currentCat(tok);
+      var now = tok.getAttribute('data-marked') || '';
       if (now === activePen) {
         paint(tok, '');           // meme surligneur : on efface
       } else {
@@ -1215,8 +1207,7 @@ whenReady(function(){
 
   function listFr(arr) {
     var quoted = arr.map(function(w){ return '« ' + w + ' »'; });
-    if (quoted.length === 1) { return quoted[0]; }
-    return quoted.slice(0, -1).join(', ') + ' et ' + quoted[quoted.length - 1];
+    return joinFr(quoted);
   }
 
   function check() {
@@ -1291,8 +1282,7 @@ whenReady(function(){
 
   function clearAll() {
     tokens.forEach(function(tok){ paint(tok, ''); });
-    selectPen(null);                                  // remet activePen a null
-    Object.keys(pens).forEach(function(key){ pens[key].setAttribute('aria-pressed', 'false'); });
+    selectPen(null);
     clearFeedback(feedback);
   }
 
@@ -1375,6 +1365,7 @@ whenReady(function(){
   var TOTAL = 120;
   var remaining = TOTAL;
   var intervalId = null;
+  var paused = false;
   var words = [];
 
   var bank = {
@@ -1386,7 +1377,7 @@ whenReady(function(){
 
   function normalize(value) {
     var v = (value || '').toString().toLowerCase().trim();
-    v = v.normalize('NFD').replace(/[̀-ͯ]/g, '');
+    v = stripAccents(v);
     v = v.replace(/^(l['’]|d['’]|c['’])/, '');
     v = v.replace(/^(la|le|les|un|une|des|se|s['’])\s+/, '');
     v = v.replace(/[.,;:!?'"’]/g, '').trim();
@@ -1442,13 +1433,7 @@ whenReady(function(){
     }
   }
 
-  function startTimer() {
-    if (isRunning() || remaining <= 0) { return; }
-    clearFeedback(feedbackEl);
-    setInputEnabled(true);
-    startBtn.disabled = true;
-    stopBtn.disabled = false;
-    input.focus();
+  function runInterval() {
     intervalId = setInterval(function(){
       remaining -= 1;
       if (remaining <= 0) {
@@ -1461,9 +1446,22 @@ whenReady(function(){
     }, 1000);
   }
 
+  function startTimer() {
+    if (isRunning() || remaining <= 0) { return; }
+    clearFeedback(feedbackEl);
+    setInputEnabled(true);
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    paused = false;
+    input.focus();
+    runInterval();
+  }
+
   function finish() {
     clearTimer();
+    paused = false;
     setInputEnabled(false);
+    renderChips();
     startBtn.disabled = true;
     stopBtn.disabled = true;
     timerEl.setAttribute('data-urgent', 'false');
@@ -1473,6 +1471,7 @@ whenReady(function(){
 
   function reset() {
     clearTimer();
+    paused = false;
     remaining = TOTAL;
     words = [];
     renderTimer();
@@ -1486,8 +1485,7 @@ whenReady(function(){
   }
 
   function alreadyHas(value) {
-    var n = normalize(value);
-    return words.some(function(w){ return normalize(w) === n; });
+    return words.some(function(w){ return sameWord(w, value); });
   }
 
   function addWord() {
@@ -1614,6 +1612,17 @@ whenReady(function(){
     }
   });
 
+  // Met le chronomètre en pause quand on quitte la diapositive, le reprend au retour.
+  var section = root.closest('.slide');
+  if (section) {
+    section.addEventListener('slideleave', function(){
+      if (isRunning()) { clearTimer(); paused = true; }
+    });
+    section.addEventListener('slideenter', function(){
+      if (paused && remaining > 0) { paused = false; runInterval(); }
+    });
+  }
+
   renderTimer();
   renderChips();
 });
@@ -1640,15 +1649,12 @@ whenReady(function(){
   ];
 
   function normalise(value) {
-    var lower = value.toLowerCase();
-    if (lower.normalize) { lower = lower.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
-    return lower;
+    return stripAccents(String(value).toLowerCase());
   }
 
   function listFound(found) {
     var labels = found.map(function(item) { return '« ' + item.label + ' »'; });
-    if (labels.length === 1) { return labels[0]; }
-    return labels.slice(0, -1).join(', ') + ' et ' + labels[labels.length - 1];
+    return joinFr(labels);
   }
 
   showBtn.addEventListener('click', function() {
@@ -1674,14 +1680,14 @@ whenReady(function(){
       return;
     }
     var hay = normalise(raw);
-    var found = keywords.filter(function(item) { return hay.indexOf(item.test) !== -1; });
+    var found = keywords.filter(function(item) { return new RegExp('\\b' + item.test + '\\b').test(hay); });
 
     if (found.length > 0) {
       var msg = '<span class="d-mark">Bien vu :</span> tu reprends ' + listFound(found) + ', la boucle est là.';
       if (selfChoice === 'non') {
         msg += ' Tu as répondu « Non », mais ces mots du début reviennent bien dans ta fin : ta boucle fonctionne.';
       } else if (selfChoice === 'oui') {
-        msg += ' Ton « Oui » est juste : la fin répond clairement au début.';
+        msg += ' Ton « Oui » se confirme : tu réutilises bien un mot du début. Vérifie aussi que le sens de ta fin répond vraiment à l\'introduction.';
       } else {
         msg += ' Réponds aussi à la question « Oui / Non » pour confirmer ton intention.';
       }
@@ -1825,8 +1831,7 @@ whenReady(function(){
   }
 
   function joinList(arr) {
-    if (arr.length === 1) { return arr[0]; }
-    return arr.slice(0, -1).join(', ') + ' et ' + arr[arr.length - 1];
+    return joinFr(arr);
   }
 
   // Construit le retour précis pour le passage actif.
@@ -1866,10 +1871,10 @@ whenReady(function(){
       }
     } else {
       if (found.length) {
-        parts.push('Corrige : ' + corrections['mouillé'] + '.');
+        parts.push('Corrige : ' + joinList(found.map(function(w){ return corrections[w]; })) + '.');
       }
       if (missed.length) {
-        parts.push('Tu as oublié « mouillé » : ' + corrections['mouillé'] + '.');
+        parts.push('Tu as oublié : ' + joinList(missed.map(function(w){ return corrections[w]; })) + '.');
       }
     }
 
@@ -2124,10 +2129,16 @@ whenReady(function(){
       var d = document.createElement('button');
       d.type = 'button';
       d.className = 'dot';
+      d.tabIndex = -1;
       d.setAttribute('aria-label', 'Aller à la diapositive ' + (i + 1));
       (function(idx){ d.addEventListener('click', function(){ goTo(idx); }); })(i);
       dotsWrap.appendChild(d);
       dots.push(d);
+    }
+
+    if(progressEl){ progressEl.setAttribute('aria-valuemax', String(total)); }
+    for(var si = 0; si < total; si++){
+      slides[si].setAttribute('aria-label', 'Diapositive ' + (si + 1) + ' sur ' + total);
     }
 
     function render(){
@@ -2148,8 +2159,11 @@ whenReady(function(){
     function goTo(i, opts){
       var n = Math.max(0, Math.min(total - 1, i));
       if(n === current){ return; }
+      var leaving = slides[current];
       current = n;
       render();
+      if(leaving){ leaving.dispatchEvent(new CustomEvent('slideleave')); }
+      slides[current].dispatchEvent(new CustomEvent('slideenter'));
       var el = slides[current];
       el.scrollTop = 0;
       if(!(opts && opts.noFocus)){ el.focus({ preventScroll: true }); }
@@ -2161,19 +2175,22 @@ whenReady(function(){
     btnNext.addEventListener('click', next);
 
     document.addEventListener('keydown', function(e){
+      if(e.altKey || e.ctrlKey || e.metaKey){ return; }
+      if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft'){ return; }
       var t = e.target;
       if(t && t.closest && t.closest('input, textarea, [contenteditable="true"]')){ return; }
-      if(e.altKey || e.ctrlKey || e.metaKey){ return; }
-      if(e.key === 'ArrowRight' || e.key === 'PageDown'){ e.preventDefault(); next(); }
-      else if(e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); prev(); }
-      else if(e.key === 'Home'){ e.preventDefault(); goTo(0); }
-      else if(e.key === 'End'){ e.preventDefault(); goTo(total - 1); }
+      e.preventDefault();
+      if(e.key === 'ArrowRight'){ next(); } else { prev(); }
     });
 
     Array.prototype.slice.call(document.querySelectorAll('[data-goto]')).forEach(function(b){
-      b.addEventListener('click', function(){ goTo(parseInt(b.getAttribute('data-goto'), 10) || 0); });
+      b.addEventListener('click', function(){
+        var target = parseInt(b.getAttribute('data-goto'), 10);
+        if(!isNaN(target)){ goTo(target); }
+      });
     });
 
+    // Deck.goTo attend un index base sur 0 (diapositive N = index N - 1).
     window.Deck = { goTo: goTo, next: next, prev: prev, total: total };
     render();
   }
